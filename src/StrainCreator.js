@@ -1,29 +1,13 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
-  PlusCircle,
-  Trash2,
-  AlertTriangle,
-  XCircle,
   CheckCircle,
   FlaskConical,
-  Sparkles,
-  TrendingUp,
-  DollarSign,
-  Percent,
-  Calculator,
-  Info,
   Factory,
   Star,
   Home,
   Users,
-  ShoppingCart,
   Package,
-  Calendar,
-  BarChart2,
-  Briefcase,
-  UserPlus,
-  PieChart,
-  Archive
+  BarChart2
 } from 'lucide-react';
 // Import existing components and icons...
 import StorageService from './StorageService';
@@ -34,7 +18,7 @@ import DopeyHeader from './DopeyHeader';
 // Import components
 import { ProductionPlanningTab } from './ProductionPlanningComponents';
 import {
-  StrainNameInput,
+  // StrainNameInput,  // Currently unused
   SeedSelector,
   IngredientsSelector,
   CurrentMixDisplay,
@@ -59,12 +43,12 @@ import {
   effectColors,
   drugTypes,
   calculateStrainEffects,
-  applyInteractions
+  // applyInteractions  // Currently unused
 } from './straindata';
 
 // Import pricing functions
 import {
-  calculateEffectMultiplier,
+  // calculateEffectMultiplier,  // Currently unused
   calculateRecommendedPrice,
   calculateTotalUnits,
   calculateTotalCost,
@@ -78,17 +62,30 @@ import {
 
 const StrainCreator = () => {
   // State
-  const [selectedIngredients, setSelectedIngredients] = useState([]);
+  //const [selectedIngredients, setSelectedIngredients] = useState([]);// No Longer used
   const [selectedSeed, setSelectedSeed] = useState(StorageService.loadSelectedSeed());
   const [selectedDrugType, setSelectedDrugType] = useState(StorageService.loadSelectedDrugType());
   const [currentMix, setCurrentMix] = useState(StorageService.loadCurrentMix());
   const [mixes, setMixes] = useState(StorageService.loadMixes());
-  const [mixName, setMixName] = useState('');
+  //const [mixName, setMixName] = useState('');//Not in use
+  const [supplies, setSupplies] = useState(StorageService.loadSupplies() || {
+    seeds: {},
+    ingredients: {},
+    packaging: { baggies: 0, jars: 0 }
+  });
+  const [supplyHistory, setSupplyHistory] = useState(StorageService.loadSupplyHistory() || []);
   
   // Load price settings from storage
   const priceSettings = StorageService.loadPriceSettings();
   const [salePrice, setSalePrice] = useState(priceSettings.salePrice);
   const [currentEffects, setCurrentEffects] = useState([]);
+
+  // Initialize proper states for crew management
+  const [dealers, setDealers] = useState(StorageService.loadDealers());
+  const [crewMembers, setCrewMembers] = useState(StorageService.loadCrewMembers());
+  const [dealerTransactions, setDealerTransactions] = useState(StorageService.loadDealerTransactions());
+  const [dailySales, setDailySales] = useState(StorageService.loadDailySales());
+
   
   // Load sort and filter settings from storage
   const sortSettings = StorageService.loadSortSettings();
@@ -182,6 +179,14 @@ const StrainCreator = () => {
   useEffect(() => {
     StorageService.saveSortSettings({ column: sortColumn, direction: sortDirection });
   }, [sortColumn, sortDirection]);
+
+  useEffect(() => {
+    StorageService.saveSupplies(supplies);
+  }, [supplies]);
+  
+  useEffect(() => {
+    StorageService.saveSupplyHistory(supplyHistory);
+  }, [supplyHistory]);
   
   useEffect(() => {
     StorageService.savePriceSettings({
@@ -676,12 +681,16 @@ return (
           reproduceProductionPlan={reproduceProductionPlan}
           drugTypes={drugTypes}
         />
-      ) : activeTab === 'supply' ? (
-        <SupplyManagementTab 
-          ingredients={ingredients}
-          seedTypes={seedTypes}
-          drugTypes={drugTypes}
+      ) : activeTab === 'supplies' ? (
+          <SupplyManagementTab
+          supplies={supplies}
+          setSupplies={setSupplies}
+          supplyHistory={supplyHistory}
+          setSupplyHistory={setSupplyHistory}
           productionPlans={productionPlans}
+          drugTypes={drugTypes}
+          seedTypes={seedTypes}
+          ingredients={ingredients}
         />
       ) : activeTab === 'sales' ? (
         <SalesHistoryTab
@@ -691,14 +700,14 @@ return (
         />
       ) : activeTab === 'crew' ? (
         <CrewManagementTab
-          dealers={[]} // Add your dealers state here if available
-          setDealers={() => {}} // Add your setDealers function
-          crewMembers={{botanist: 0, cleaner: 0, handler: 0, chemist: 0}} // Add your crew state
-          setCrewMembers={() => {}} // Add your setCrew function
-          dealerTransactions={[]} // Add your transactions state
-          setDealerTransactions={() => {}} // Add setter
-          dailySales={[]} // Add your sales state
-          setDailySales={() => {}} // Add setter
+          dealers={dealers}
+          setDealers={setDealers}
+          crewMembers={crewMembers}
+          setCrewMembers={setCrewMembers}
+          dealerTransactions={dealerTransactions}
+          setDealerTransactions={setDealerTransactions}
+          dailySales={dailySales}
+          setDailySales={setDailySales}
           drugTypes={drugTypes}
         />
       ) : null}
@@ -708,7 +717,7 @@ return (
         isOpen={showNamePrompt}
         onClose={() => setShowNamePrompt(false)}
         onSave={saveMix}
-        initialName={mixName}
+        initialName={''}  // Pass empty string instead of using mixName
       />
     </div>
 

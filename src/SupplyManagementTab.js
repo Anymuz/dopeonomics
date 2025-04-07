@@ -3,26 +3,23 @@ import React, { useState, useEffect } from 'react';
 import {
   Package,
   ShoppingBag,
-  Truck,
-  PlusCircle,
   AlertTriangle,
-  Info,
-  Check,
   Search,
-  TrendingUp,
-  BarChart,
-  DollarSign,
   ArrowUp,
   ArrowDown
 } from 'lucide-react';
 
 // Supply Management Tab Component
 const SupplyManagementTab = ({
-  supplies,
+  supplies = {
+    seeds: {},
+    ingredients: {},
+    packaging: { baggies: 0, jars: 0 }
+  }, // Add default value
   setSupplies,
-  supplyHistory,
+  supplyHistory = [], // Add default value
   setSupplyHistory,
-  productionPlans,
+  productionPlans = [], // Add default value
   drugTypes,
   seedTypes,
   ingredients

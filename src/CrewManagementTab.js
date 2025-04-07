@@ -2,21 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import {
   Users,
-  UserPlus,
-  Trash2,
-  DollarSign,
-  Calendar,
-  TrendingUp,
-  BarChart,
-  PieChart,
   Check,
-  X,
   AlertTriangle,
-  PlusCircle,
   Plus,
   Minus
 } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, BarChart as RechartsBarChart, Bar, ResponsiveContainer, Cell, PieChart as RechartsPieChart, Pie } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, PieChart as RechartsPieChart, Pie } from 'recharts';
 
 // Dealer data structure
 const defaultDealers = [

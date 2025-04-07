@@ -2,18 +2,24 @@
 // A centralized service for handling local storage operations
 
 const STORAGE_KEYS = {
-    MIXES: 'dopey_strainMixes',
-    PRODUCTION_PLANS: 'dopey_productionPlans',
-    SALES_HISTORY: 'dopey_salesHistory',
-    ACTIVE_TAB: 'dopey_activeTab',
-    STRAIN_VIEW: 'dopey_strainView',
-    FILTER_OPTIONS: 'dopey_filterOptions',
-    SORT_SETTINGS: 'dopey_sortSettings',
-    CURRENT_MIX: 'dopey_currentMix',
-    SELECTED_DRUG_TYPE: 'dopey_selectedDrugType',
-    SELECTED_SEED: 'dopey_selectedSeed',
-    PRICE_SETTINGS: 'dopey_priceSettings',
-  };
+  MIXES: 'dopey_strainMixes',
+  PRODUCTION_PLANS: 'dopey_productionPlans',
+  SALES_HISTORY: 'dopey_salesHistory',
+  ACTIVE_TAB: 'dopey_activeTab',
+  STRAIN_VIEW: 'dopey_strainView',
+  FILTER_OPTIONS: 'dopey_filterOptions',
+  SORT_SETTINGS: 'dopey_sortSettings',
+  CURRENT_MIX: 'dopey_currentMix',
+  SELECTED_DRUG_TYPE: 'dopey_selectedDrugType',
+  SELECTED_SEED: 'dopey_selectedSeed',
+  PRICE_SETTINGS: 'dopey_priceSettings',
+  SUPPLIES: 'dopey_supplies',
+  SUPPLY_HISTORY: 'dopey_supplyHistory',
+  DEALERS: 'dopey_dealers',
+  CREW_MEMBERS: 'dopey_crewMembers',
+  DEALER_TRANSACTIONS: 'dopey_dealerTransactions',
+  DAILY_SALES: 'dopey_dailySales'
+};
   
   // Save data to localStorage
   const saveData = (key, data) => {
@@ -26,6 +32,33 @@ const STORAGE_KEYS = {
     }
   };
   
+  const saveSupplies = (supplies) => saveData(STORAGE_KEYS.SUPPLIES, supplies);
+  const loadSupplies = () => loadData(STORAGE_KEYS.SUPPLIES, {
+    seeds: {},
+    ingredients: {},
+    packaging: { baggies: 0, jars: 0 }
+  });
+  
+  const saveSupplyHistory = (history) => saveData(STORAGE_KEYS.SUPPLY_HISTORY, history);
+  const loadSupplyHistory = () => loadData(STORAGE_KEYS.SUPPLY_HISTORY, []);
+  
+  const saveDealers = (dealers) => saveData(STORAGE_KEYS.DEALERS, dealers);
+  const loadDealers = () => loadData(STORAGE_KEYS.DEALERS, []);
+  
+  const saveCrewMembers = (crew) => saveData(STORAGE_KEYS.CREW_MEMBERS, crew);
+  const loadCrewMembers = () => loadData(STORAGE_KEYS.CREW_MEMBERS, {
+    botanist: 0,
+    cleaner: 0,
+    handler: 0,
+    chemist: 0
+  });
+  
+  const saveDealerTransactions = (transactions) => saveData(STORAGE_KEYS.DEALER_TRANSACTIONS, transactions);
+  const loadDealerTransactions = () => loadData(STORAGE_KEYS.DEALER_TRANSACTIONS, []);
+  
+  const saveDailySales = (sales) => saveData(STORAGE_KEYS.DAILY_SALES, sales);
+  const loadDailySales = () => loadData(STORAGE_KEYS.DAILY_SALES, []);
+
   // Load data from localStorage
   const loadData = (key, defaultValue = null) => {
     try {
@@ -136,7 +169,22 @@ const STORAGE_KEYS = {
     saveSelectedSeed,
     loadSelectedSeed,
     savePriceSettings,
-    loadPriceSettings
+    loadPriceSettings,
+    saveSupplyHistory,
+    loadSupplyHistory,
+    saveSupplies,
+    loadSupplies,
+    saveSupplyHistory,
+    loadSupplyHistory,
+    saveDealers,
+    loadDealers,
+    saveCrewMembers,
+    loadCrewMembers,
+    saveDealerTransactions,
+    loadDealerTransactions,
+    saveDailySales,
+    loadDailySales
+
   };
   
   export default StorageService;
