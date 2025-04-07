@@ -1,7 +1,5 @@
 // pricing.js - Centralized pricing functions for the application
 
-import { drugTypes } from './straindata';
-
 // Calculate effect multiplier for price calculations
 export const calculateEffectMultiplier = (currentEffects) => {
   if (!currentEffects || currentEffects.length === 0) return 0;

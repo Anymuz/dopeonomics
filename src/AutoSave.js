@@ -1,8 +1,7 @@
 // AutoSave.js
 // Component that provides automatic saving of game state
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Save, CheckCircle } from 'lucide-react';
-import StorageService from './StorageService';
 
 const AUTO_SAVE_INTERVAL = 30000; // Auto-save every 30 seconds
 
@@ -14,8 +13,8 @@ const AutoSave = ({
   const [lastSaved, setLastSaved] = useState(null);
   const [showSaveConfirmation, setShowSaveConfirmation] = useState(false);
 
-  // Function to handle saving
-  const saveGame = () => {
+  // Function to handle automatic saving (silent)
+  const autoSaveGame = useCallback(() => {
     // Call the manual save function passed from parent
     onManualSave();
     
@@ -23,7 +22,19 @@ const AutoSave = ({
     const now = new Date();
     setLastSaved(now);
     
-    // Show confirmation message briefly
+    // No notification for auto-save
+  }, [onManualSave]);
+
+  // Function to handle manual saving (with notification)
+  const manualSaveGame = () => {
+    // Call the manual save function passed from parent
+    onManualSave();
+    
+    // Update last saved timestamp
+    const now = new Date();
+    setLastSaved(now);
+    
+    // Show confirmation message briefly - only for manual saves
     setShowSaveConfirmation(true);
     setTimeout(() => {
       setShowSaveConfirmation(false);
@@ -33,15 +44,15 @@ const AutoSave = ({
   // Set up auto-save interval
   useEffect(() => {
     const intervalId = setInterval(() => {
-      saveGame();
+      autoSaveGame();
     }, autoSaveInterval);
 
-    // Save on component mount
-    saveGame();
+    // Save on component mount (silent)
+    autoSaveGame();
 
     // Clean up interval on unmount
     return () => clearInterval(intervalId);
-  }, [autoSaveInterval, gameState]);
+  }, [autoSaveInterval, autoSaveGame, gameState]);
 
   // Save when window is about to unload (close/refresh)
   useEffect(() => {
@@ -54,7 +65,7 @@ const AutoSave = ({
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [gameState]);
+  }, [onManualSave, gameState]);
 
   // Format the last saved time
   const formatLastSaved = (date) => {
@@ -83,7 +94,7 @@ const AutoSave = ({
           </div>
           
           <button
-            onClick={saveGame}
+            onClick={manualSaveGame}
             className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-lg flex items-center justify-center"
             title="Save game"
           >

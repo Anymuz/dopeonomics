@@ -297,7 +297,7 @@ export const calculateRecommendedPrice = (effects, productType = 'Weed') => {
   return Math.round(basePrice * (1 + totalMultiplier));
 };
 
-// Price Margin Inputs component - UPDATED for whole number formatting
+// Price Margin Inputs component 
 export const PriceMarginInputs = ({ 
   salePrice, 
   targetMargin, 
@@ -320,7 +320,7 @@ export const PriceMarginInputs = ({
       setSalePrice(recommendedPrice);
       calculateMarginFromSalePrice();
     }
-  }, [recommendedPrice]);
+  }, [recommendedPrice, setSalePrice, calculateMarginFromSalePrice]);
 
   // Handler to ensure only whole numbers are entered
   const handlePriceChange = (e) => {

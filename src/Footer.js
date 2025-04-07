@@ -1,6 +1,6 @@
 // Footer.js
 import React from 'react';
-import { Info, Heart, Github } from 'lucide-react';
+import { Info, Heart} from 'lucide-react';
 
 const Footer = () => {
   return (

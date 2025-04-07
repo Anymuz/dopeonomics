@@ -6,9 +6,7 @@ import {
   Calendar,
   TrendingUp,
   Filter,
-  DollarSign,
   Copy,
-  Trash2
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, BarChart as RechartsBarChart, Bar, ResponsiveContainer, Cell } from 'recharts';
 

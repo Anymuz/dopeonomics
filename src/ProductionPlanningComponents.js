@@ -2,24 +2,17 @@
 import React, { useState, useEffect } from 'react';
 import {
   Factory,
-  Filter,
   Trash2,
   DollarSign,
   ShoppingBag,
-  Calculator,
   TrendingUp,
-  BarChart,
   ShoppingCart,
-  Calendar,
   Info,
   RefreshCw,
   Copy,
   MoreHorizontal,
-  Check,
-  X,
   Star
 } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, BarChart as RechartsBarChart, Bar, ResponsiveContainer, Cell } from 'recharts';
 
 // Production Planning Tab Component
 const ProductionPlanningTab = ({ 

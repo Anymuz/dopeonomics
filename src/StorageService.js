@@ -170,8 +170,6 @@ const STORAGE_KEYS = {
     loadSelectedSeed,
     savePriceSettings,
     loadPriceSettings,
-    saveSupplyHistory,
-    loadSupplyHistory,
     saveSupplies,
     loadSupplies,
     saveSupplyHistory,
