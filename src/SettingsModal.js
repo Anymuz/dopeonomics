@@ -1,11 +1,11 @@
 // SettingsModal.js
 import React, { useState } from 'react';
-import { Settings, X, Save, Trash2, AlertTriangle, Download, Upload } from 'lucide-react';
+import { Settings, X, Trash2, AlertTriangle, Download} from 'lucide-react';
 import StorageService from './StorageService';
 
 const SettingsModal = ({ isOpen, onClose }) => {
   const [showConfirmReset, setShowConfirmReset] = useState(false);
-  const [exportDataUrl, setExportDataUrl] = useState(null);
+  //const [exportDataUrl, setExportDataUrl] = useState(null);// Not currently in use
   const [importError, setImportError] = useState(null);
 
   // Close modal if not open
