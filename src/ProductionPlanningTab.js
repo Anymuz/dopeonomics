@@ -118,6 +118,7 @@ const ProductionPlanningTab = ({
                 setDailySales={setDailySales}
                 dealerTransactions={dealerTransactions}
                 setDealerTransactions={setDealerTransactions}
+                effectColors={effectColors}
               />
             ))
           )}
