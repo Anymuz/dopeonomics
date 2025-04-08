@@ -35,8 +35,8 @@ const SettingsModal = ({ isOpen, onClose }) => {
       const blob = new Blob([JSON.stringify(gameData, null, 2)], { type: 'application/json' });
       
       // Create a downloadable URL
-      const url = URL.createObjectURL(blob);
-      setExportDataUrl(url);
+      //const url = URL.createObjectURL(blob);
+      //setExportDataUrl(url);// - Not in use
       
       // Create element to trigger download
       const a = document.createElement('a');
