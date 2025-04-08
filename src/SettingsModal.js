@@ -1,6 +1,6 @@
 // SettingsModal.js
 import React, { useState } from 'react';
-import { Settings, X, Trash2, AlertTriangle, Download, Upload } from 'lucide-react';
+import { Settings, X, Trash2, AlertTriangle, Download} from 'lucide-react';
 import StorageService from './StorageService';
 
 const SettingsModal = ({ isOpen, onClose }) => {
