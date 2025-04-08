@@ -1,5 +1,5 @@
-// Data module for Strain Creator
-// This separates out all the static data to make the main component cleaner
+// Revised straindata.js with accurate interactions
+// Based on the game mechanics and properly implementing transformations
 
 export const seedTypes = [
   // Weed seeds
@@ -8,41 +8,23 @@ export const seedTypes = [
   { name: 'Green Crack Seed', cost: 40, effect: 'Energizing', drugType: 'weed' },
   { name: 'Granddaddy Purple Seed', cost: 45, effect: 'Sedating', drugType: 'weed' },
   
-  // Meth "seeds" (really these are pseudoephedrine types)
-  { name: 'Low-Quality Pseudo', cost: 140, effect: 'Energizing', drugType: 'meth', 
-    description: 'Low-grade pseudoephedrine + chemicals', yieldAmount: 10, basePrice: 70,
-    ingredients: 'Acid ($40), Red Phosphorus ($40), Low-Grade Pseudo ($60)', 
-    productionTime: '8 minutes + 6 minutes in oven' },
+  // Meth "seeds"
+  { name: 'Low-Quality Pseudo', cost: 140, effect: 'Energizing', drugType: 'meth' },
+  { name: 'Standard Pseudo', cost: 160, effect: 'Electrifying', drugType: 'meth' },
+  { name: 'High-Quality Pseudo', cost: 190, effect: 'Bright-Eyed', drugType: 'meth' },
   
-  { name: 'Standard Pseudo', cost: 160, effect: 'Electrifying', drugType: 'meth',
-    description: 'Standard pseudoephedrine + chemicals', yieldAmount: 10, basePrice: 70,
-    ingredients: 'Acid ($40), Red Phosphorus ($40), Regular Pseudo ($80)', 
-    productionTime: '8 minutes + 6 minutes in oven' },
-  
-  { name: 'High-Quality Pseudo', cost: 190, effect: 'Bright-Eyed', drugType: 'meth',
-    description: 'Premium pseudoephedrine + chemicals', yieldAmount: 10, basePrice: 70,
-    ingredients: 'Acid ($40), Red Phosphorus ($40), High-Grade Pseudo ($110)', 
-    productionTime: '8 minutes + 6 minutes in oven' },
-  
-  // Cocaine "seeds" (different drying times for coca leaves)
-  { name: 'Standard Coca Leaves', cost: 210, effect: 'Euphoric', drugType: 'cocaine',
-    description: 'Fresh coca leaves (no drying)', yieldAmount: 10, basePrice: 90,
-    ingredients: 'Coca Leaves (20), Gasoline (1)', 
-    productionTime: '10 hours growing + 6 minutes processing + 6 minutes refining' },
-  
-  { name: 'Premium Coca Leaves', cost: 210, effect: 'Focused', drugType: 'cocaine',
-    description: 'Coca leaves dried for 12 hours', yieldAmount: 10, basePrice: 135,
-    ingredients: 'Coca Leaves (20), Gasoline (1)', 
-    productionTime: '10 hours growing + 12 hours drying + 6 minutes processing + 6 minutes refining' },
-  
-  { name: 'Heavenly Coca Leaves', cost: 210, effect: 'Thought-Provoking', drugType: 'cocaine',
-    description: 'Coca leaves dried for 24 hours', yieldAmount: 10, basePrice: 180,
-    ingredients: 'Coca Leaves (20), Gasoline (1)', 
-    productionTime: '10 hours growing + 24 hours drying + 6 minutes processing + 6 minutes refining' }
+  // Cocaine "seeds"
+  { name: 'Standard Coca Leaves', cost: 210, effect: 'Euphoric', drugType: 'cocaine' },
+  { name: 'Premium Coca Leaves', cost: 210, effect: 'Focused', drugType: 'cocaine' },
+  { name: 'Heavenly Coca Leaves', cost: 210, effect: 'Thought-Provoking', drugType: 'cocaine' }
 ];
 
 export const ingredients = [
-    { name: 'Cuke', cost: 2, emoji: '🥤', 
+    { 
+      name: 'Cuke', 
+      cost: 2, 
+      emoji: '🥤', 
+      defaultEffect: 'Energizing',
       interactions: [
         { if: 'Toxic', replaceWith: 'Euphoric' },
         { if: 'Slippery', replaceWith: 'Munchies' },
@@ -53,12 +35,16 @@ export const ingredients = [
         { if: 'Euphoric', replaceWith: 'Laxative' }
       ] 
     },
-    { name: 'Banana', cost: 2, emoji: '🍌',
+    { 
+      name: 'Banana', 
+      cost: 2, 
+      emoji: '🍌',
+      defaultEffect: 'Gingeritis',
       interactions: [
         { if: 'Energizing', replaceWith: 'Thought-Provoking' },
         { if: 'Calming', replaceWith: 'Sneaky' },
         { if: 'Toxic', replaceWith: 'Smelly' },
-        { if: 'Long Faced', replaceWith: 'Refreshing' },
+        { if: 'Long-Faced', replaceWith: 'Refreshing' },
         { if: 'Cyclopean', replaceWith: 'Thought-Provoking' },
         { if: 'Disorienting', replaceWith: 'Focused' },
         { if: 'Focused', replaceWith: 'Seizure-Inducing' },
@@ -66,7 +52,11 @@ export const ingredients = [
         { if: 'Smelly', replaceWith: 'Anti-Gravity' }
       ]
     },
-    { name: 'Paracetamol', cost: 3, emoji: '⚪',
+    { 
+      name: 'Paracetamol', 
+      cost: 3, 
+      emoji: '⚪',
+      defaultEffect: 'Sneaky',
       interactions: [
         { if: 'Energizing', replaceWith: 'Paranoia' },
         { if: 'Calming', replaceWith: 'Slippery' },
@@ -80,7 +70,11 @@ export const ingredients = [
         { if: 'Focused', replaceWith: 'Gingeritis' }
       ]
     },
-    { name: 'Donut', cost: 3, emoji: '🍩',
+    { 
+      name: 'Donut', 
+      cost: 3, 
+      emoji: '🍩',
+      defaultEffect: 'Calorie-Dense',
       interactions: [
         { if: 'Calorie-Dense', replaceWith: 'Explosive' },
         { if: 'Balding', replaceWith: 'Sneaky' },
@@ -90,7 +84,11 @@ export const ingredients = [
         { if: 'Shrinking', replaceWith: 'Energizing' }
       ]
     },
-    { name: 'Viagra', cost: 4, emoji: '🍆',
+    { 
+      name: 'Viagra', 
+      cost: 4, 
+      emoji: '🍆',
+      defaultEffect: 'Tropic Thunder',
       interactions: [
         { if: 'Athletic', replaceWith: 'Sneaky' },
         { if: 'Euphoric', replaceWith: 'Bright-Eyed' },
@@ -98,7 +96,11 @@ export const ingredients = [
         { if: 'Disorienting', replaceWith: 'Toxic' }
       ]
     },
-    { name: 'Mouth Wash', cost: 4, emoji: '💧',
+    { 
+      name: 'Mouth Wash', 
+      cost: 4, 
+      emoji: '💧',
+      defaultEffect: 'Balding',
       interactions: [
         { if: 'Calming', replaceWith: 'Anti-Gravity' },
         { if: 'Calorie-Dense', replaceWith: 'Sneaky' },
@@ -106,7 +108,11 @@ export const ingredients = [
         { if: 'Focused', replaceWith: 'Jennerising' }
       ]
     },
-    { name: 'Flu Medicine', cost: 5, emoji: '🍇',
+    { 
+      name: 'Flu Medicine', 
+      cost: 5, 
+      emoji: '🍇',
+      defaultEffect: 'Sedating',
       interactions: [
         { if: 'Calming', replaceWith: 'Bright-Eyed' },
         { if: 'Athletic', replaceWith: 'Munchies' },
@@ -120,7 +126,11 @@ export const ingredients = [
         { if: 'Shrinking', replaceWith: 'Paranoia' }
       ]
     },
-    { name: 'Gasoline', cost: 5, emoji: '⛽',
+    { 
+      name: 'Gasoline', 
+      cost: 5, 
+      emoji: '⛽',
+      defaultEffect: 'Toxic',
       interactions: [
         { if: 'Gingeritis', replaceWith: 'Smelly' },
         { if: 'Jennerising', replaceWith: 'Sneaky' },
@@ -135,7 +145,11 @@ export const ingredients = [
         { if: 'Shrinking', replaceWith: 'Focused' }
       ]
     },
-    { name: 'Energy Drink', cost: 6, emoji: '🐂',
+    { 
+      name: 'Energy Drink', 
+      cost: 6, 
+      emoji: '🐂',
+      defaultEffect: 'Athletic',
       interactions: [
         { if: 'Sedating', replaceWith: 'Munchies' },
         { if: 'Euphoric', replaceWith: 'Energizing' },
@@ -148,7 +162,11 @@ export const ingredients = [
         { if: 'Focused', replaceWith: 'Shrinking' }
       ]
     },
-    { name: 'Motor Oil', cost: 6, emoji: '🛢️',
+    { 
+      name: 'Motor Oil', 
+      cost: 6, 
+      emoji: '🛢️',
+      defaultEffect: 'Slippery',
       interactions: [
         { if: 'Energizing', replaceWith: 'Munchies' },
         { if: 'Foggy', replaceWith: 'Toxic' },
@@ -157,7 +175,11 @@ export const ingredients = [
         { if: 'Munchies', replaceWith: 'Schizophrenia' }
       ]
     },
-    { name: 'Mega Bean', cost: 7, emoji: '🫛',
+    { 
+      name: 'Mega Bean', 
+      cost: 7, 
+      emoji: '🫛',
+      defaultEffect: 'Foggy',
       interactions: [
         { if: 'Energizing', replaceWith: 'Cyclopean' },
         { if: 'Calming', replaceWith: 'Glowing' },
@@ -171,17 +193,25 @@ export const ingredients = [
         { if: 'Shrinking', replaceWith: 'Electrifying' }
       ]
     },
-    { name: 'Chili', cost: 7, emoji: '🌶️',
+    { 
+      name: 'Chili', 
+      cost: 7, 
+      emoji: '🌶️',
+      defaultEffect: 'Spicy',
       interactions: [
         { if: 'Athletic', replaceWith: 'Euphoric' },
         { if: 'Anti-Gravity', replaceWith: 'Tropic Thunder' },
         { if: 'Sneaky', replaceWith: 'Bright-Eyed' },
         { if: 'Munchies', replaceWith: 'Toxic' },
-        { if: 'Laxative', replaceWith: 'Long Faced' },
+        { if: 'Laxative', replaceWith: 'Long-Faced' },
         { if: 'Shrinking', replaceWith: 'Refreshing' }
       ]
     },
-    { name: 'Battery', cost: 8, emoji: '🔋',
+    { 
+      name: 'Battery', 
+      cost: 8, 
+      emoji: '🔋',
+      defaultEffect: 'Bright-Eyed',
       interactions: [
         { if: 'Munchies', replaceWith: 'Tropic Thunder' },
         { if: 'Euphoric', replaceWith: 'Zombifying' },
@@ -191,7 +221,11 @@ export const ingredients = [
         { if: 'Shrinking', replaceWith: 'Munchies' }
       ]
     },
-    { name: 'Iodine', cost: 8, emoji: '🟠',
+    { 
+      name: 'Iodine', 
+      cost: 8, 
+      emoji: '🟠',
+      defaultEffect: 'Jennerising',
       interactions: [
         { if: 'Calming', replaceWith: 'Balding' },
         { if: 'Toxic', replaceWith: 'Sneaky' },
@@ -201,16 +235,24 @@ export const ingredients = [
         { if: 'Refreshing', replaceWith: 'Thought-Provoking' }
       ]
     },
-    { name: 'Addy', cost: 9, emoji: '💊',
+    { 
+      name: 'Addy', 
+      cost: 9, 
+      emoji: '💊',
+      defaultEffect: 'Thought-Provoking',
       interactions: [
         { if: 'Sedating', replaceWith: 'Gingeritis' },
-        { if: 'Long Faced', replaceWith: 'Electrifying' },
+        { if: 'Long-Faced', replaceWith: 'Electrifying' },
         { if: 'Glowing', replaceWith: 'Refreshing' },
         { if: 'Foggy', replaceWith: 'Energizing' },
         { if: 'Explosive', replaceWith: 'Euphoric' }
       ]
     },
-    { name: 'Horse Semen', cost: 9, emoji: '🐴',
+    { 
+      name: 'Horse Semen', 
+      cost: 9, 
+      emoji: '🐴',
+      defaultEffect: 'Long-Faced',
       interactions: [
         { if: 'Anti-Gravity', replaceWith: 'Calming' },
         { if: 'Gingeritis', replaceWith: 'Refreshing' },
@@ -218,58 +260,57 @@ export const ingredients = [
       ]
     },
     
-    // New meth-specific ingredients
-    { name: 'Glass Shards', cost: 10, emoji: '🔍',
+    // Meth-specific ingredients
+    { 
+      name: 'Glass Shards', 
+      cost: 10, 
+      emoji: '🔍',
+      defaultEffect: 'Explosive',
       interactions: [
         { if: 'Energizing', replaceWith: 'Electrifying' },
         { if: 'Bright-Eyed', replaceWith: 'Explosive' }
       ]
     },
-    { name: 'Blue Food Coloring', cost: 12, emoji: '🔵',
+    { 
+      name: 'Blue Food Coloring', 
+      cost: 12, 
+      emoji: '🔵',
+      defaultEffect: 'Glowing',
       interactions: [
         { if: 'Energizing', replaceWith: 'Calming' },
         { if: 'Electrifying', replaceWith: 'Glowing' }
       ]
     },
     
-    // New cocaine-specific ingredients
-    { name: 'Baking Soda', cost: 8, emoji: '🧂',
+    // Cocaine-specific ingredients
+    { 
+      name: 'Baking Soda', 
+      cost: 8, 
+      emoji: '🧂',
+      defaultEffect: 'Euphoric',
       interactions: [
         { if: 'Euphoric', replaceWith: 'Energizing' },
         { if: 'Focused', replaceWith: 'Athletic' }
       ]
     },
-    { name: 'Caffeine Powder', cost: 15, emoji: '☕',
+    { 
+      name: 'Caffeine Powder', 
+      cost: 15, 
+      emoji: '☕',
+      defaultEffect: 'Energizing',
       interactions: [
         { if: 'Euphoric', replaceWith: 'Bright-Eyed' },
         { if: 'Thought-Provoking', replaceWith: 'Energizing' }
       ]
     }
 ];
-  
-export const additiveEffects = {
-    'Cuke': 'Energizing',
-    'Banana': 'Gingeritis',
-    'Paracetamol': 'Sneaky',
-    'Donut': 'Calorie-Dense',
-    'Viagra': 'Tropic Thunder',
-    'Mouth Wash': 'Balding',
-    'Flu Medicine': 'Sedating',
-    'Gasoline': 'Toxic',
-    'Energy Drink': 'Athletic',
-    'Motor Oil': 'Slippery',
-    'Mega Bean': 'Foggy',
-    'Chili': 'Spicy',
-    'Battery': 'Bright-Eyed',
-    'Iodine': 'Jennerising',
-    'Addy': 'Thought-Provoking',
-    'Horse Semen': 'Long-Faced',
-    'Glass Shards': 'Explosive',
-    'Blue Food Coloring': 'Glowing',
-    'Baking Soda': 'Euphoric',
-    'Caffeine Powder': 'Energizing'
-};
-  
+
+// For backwards compatibility with existing code
+export const additiveEffects = ingredients.reduce((acc, ingredient) => {
+  acc[ingredient.name] = ingredient.defaultEffect;
+  return acc;
+}, {});
+
 export const effectColors = {
     'Anti-Gravity': '#143371',
     'Athletic': '#4d85a8',
@@ -335,40 +376,138 @@ export const drugTypes = {
     unit: 'grams'
   }
 };
+
+// Updated sequential mixing function with proper interaction application
+export const calculateStrainEffects = (seedEffect, ingredientsSequence) => {
+  if (!seedEffect || !ingredientsSequence || ingredientsSequence.length === 0) {
+    return {
+      finalEffects: seedEffect ? [seedEffect] : [],
+      mixingHistory: seedEffect ? [{
+        step: 0,
+        ingredient: "Base Seed",
+        effectsBefore: [],
+        effectsAfter: [seedEffect],
+        changes: [`Added ${seedEffect}`]
+      }] : []
+    };
+  }
   
-// Helper functions related to strain effects
-export const applyInteractions = (ingredient, effects) => {
-    if (!ingredient.interactions) return [...effects];
+  // Start with the seed effect
+  let currentEffects = [seedEffect];
+  
+  // Store the history of effect changes for UI display
+  const mixingHistory = [{
+    step: 0,
+    ingredient: "Base Seed",
+    effectsBefore: [],
+    effectsAfter: [...currentEffects],
+    changes: [`Added ${seedEffect}`]
+  }];
+  
+  // Process each ingredient one by one in sequence
+  ingredientsSequence.forEach((ingredient, index) => {
+    const effectsBefore = [...currentEffects];
     
-    return effects.map(effect => {
-      const interaction = ingredient.interactions.find(i => i.if === effect);
-      return interaction ? interaction.replaceWith : effect;
-    });
-};
-  
-export const calculateStrainEffects = (seedEffect, ingredients) => {
-    if (!seedEffect || !ingredients || ingredients.length === 0) {
-      return seedEffect ? [seedEffect] : [];
+    // 1. Apply interactions (transformations) based on this ingredient
+    if (ingredient.interactions && ingredient.interactions.length > 0) {
+      // Create a new array for the effects after transformations
+      let transformedEffects = [...currentEffects];
+      
+      // For each interaction rule, check if the effect exists and transform it
+      // ONLY if the replacement effect is not already present
+      ingredient.interactions.forEach(interaction => {
+        const effectIndex = transformedEffects.findIndex(effect => effect === interaction.if);
+        
+        // Only apply transformation if:
+        // 1. The target effect exists AND
+        // 2. The replacement effect is NOT already in the effects list
+        if (effectIndex !== -1 && !transformedEffects.includes(interaction.replaceWith)) {
+          transformedEffects[effectIndex] = interaction.replaceWith;
+        }
+      });
+      
+      currentEffects = transformedEffects;
     }
-  
-    let currentEffects = [seedEffect];
-  
-    ingredients.forEach(ingredient => {
-      const naturalEffect = additiveEffects[ingredient.name];
-      
-      // Apply interactions
-      currentEffects = applyInteractions(ingredient, currentEffects);
-      
-      // Add natural effect if not already present and under limit
-      if (naturalEffect && currentEffects.length < 8 && !currentEffects.includes(naturalEffect)) {
-        currentEffects.push(naturalEffect);
+    
+    // Track what effects changed due to interactions
+    const transformations = [];
+    for (let i = 0; i < Math.min(effectsBefore.length, currentEffects.length); i++) {
+      if (currentEffects[i] !== effectsBefore[i]) {
+        transformations.push(`${effectsBefore[i]} → ${currentEffects[i]}`);
       }
+    }
+    
+    // 2. Add the ingredient's default effect if not already present and under the 8 effects limit
+    const defaultEffect = ingredient.defaultEffect;
+    
+    if (defaultEffect && currentEffects.length < 8 && !currentEffects.includes(defaultEffect)) {
+      currentEffects.push(defaultEffect);
+      transformations.push(`Added ${defaultEffect}`);
+    }
+    
+    // Limit to maximum 8 effects
+    if (currentEffects.length > 8) {
+      const removed = currentEffects.slice(8);
+      currentEffects = currentEffects.slice(0, 8);
+      transformations.push(`Removed effects due to 8-effect limit: ${removed.join(', ')}`);
+    }
+    
+    // Record this step in the mixing history
+    mixingHistory.push({
+      step: index + 1,
+      ingredient: ingredient.name,
+      effectsBefore: effectsBefore,
+      effectsAfter: [...currentEffects],
+      changes: transformations.length > 0 ? transformations : ["No change"]
+    });
+  });
   
-      // Limit to 8 effects max
-      if (currentEffects.length > 8) {
-        currentEffects = currentEffects.slice(0, 8);
+  // Return both the final effects and the history for UI display
+  return {
+    finalEffects: currentEffects,
+    mixingHistory: mixingHistory
+  };
+};
+
+// Helper function to check what would happen if we add a specific ingredient next
+export const simulateAddIngredient = (currentEffects, ingredient) => {
+  if (!currentEffects || !ingredient) return { newEffects: [...currentEffects] };
+  
+  // Clone current effects
+  let newEffects = [...currentEffects];
+  const transformations = [];
+  
+  // Apply interactions
+  if (ingredient.interactions && ingredient.interactions.length > 0) {
+    ingredient.interactions.forEach(interaction => {
+      const effectIndex = newEffects.findIndex(effect => effect === interaction.if);
+      
+      // Only apply transformation if:
+      // 1. The target effect exists AND 
+      // 2. The replacement effect is NOT already in the effects list
+      if (effectIndex !== -1 && !newEffects.includes(interaction.replaceWith)) {
+        const oldEffect = newEffects[effectIndex];
+        newEffects[effectIndex] = interaction.replaceWith;
+        transformations.push({
+          from: oldEffect,
+          to: interaction.replaceWith
+        });
       }
     });
+  }
   
-    return currentEffects;
+  // Add default effect if possible
+  let addedDefaultEffect = false;
+  if (ingredient.defaultEffect && newEffects.length < 8 && !newEffects.includes(ingredient.defaultEffect)) {
+    newEffects.push(ingredient.defaultEffect);
+    addedDefaultEffect = true;
+  }
+  
+  return {
+    newEffects,
+    transformations,
+    addedDefaultEffect,
+    defaultEffect: ingredient.defaultEffect
+  };
 };
+  

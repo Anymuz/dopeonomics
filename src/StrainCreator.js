@@ -9,25 +9,19 @@ import {
   Package,
   BarChart2
 } from 'lucide-react';
-// Import existing components and icons...
+
+// Import existing components
 import StorageService from './StorageService';
 import AutoSave from './AutoSave';
-
 import DopeyHeader from './DopeyHeader';
 
 // Import components
 import { ProductionPlanningTab } from './ProductionPlanningComponents';
-import {
-  // StrainNameInput,  // Currently unused
-  SeedSelector,
-  IngredientsSelector,
-  CurrentMixDisplay,
-  PriceMarginInputs,
-  ProfitInfoDisplay,
-  PackagingSelector
-} from './components';
-
-// Import new components
+import { SeedSelector } from './IngredientComponents';
+import { CurrentMixDisplay } from './MixDisplayComponents';
+import { SequentialIngredientsSelector } from './SequentialIngredientsSelector';
+import { PackagingSelector, PriceMarginInputs} from './PackagingComponents';
+import { ProfitInfoDisplay } from './ProfitComponents';
 import { DrugTypeSelector } from './DrugTypeSelector';
 import { NamePromptModal } from './NamePromptModal';
 import { SavedStrainsTable } from './SavedStrainsTable';
@@ -42,13 +36,11 @@ import {
   additiveEffects, 
   effectColors,
   drugTypes,
-  calculateStrainEffects,
-  // applyInteractions  // Currently unused
+  calculateStrainEffects
 } from './straindata';
 
 // Import pricing functions
 import {
-  // calculateEffectMultiplier,  // Currently unused
   calculateRecommendedPrice,
   calculateTotalUnits,
   calculateTotalCost,
@@ -57,17 +49,36 @@ import {
   calculateTotalBatchProfit,
   calculatePackagingProfit,
   calculateSalePriceFromMargin,
-  calculateProductionPlan
+  calculateProductionPlan,
 } from './pricing';
 
 const StrainCreator = () => {
-  // State
-  //const [selectedIngredients, setSelectedIngredients] = useState([]);// No Longer used
+  // State for strain creation
   const [selectedSeed, setSelectedSeed] = useState(StorageService.loadSelectedSeed());
   const [selectedDrugType, setSelectedDrugType] = useState(StorageService.loadSelectedDrugType());
-  const [currentMix, setCurrentMix] = useState(StorageService.loadCurrentMix());
-  const [mixes, setMixes] = useState(StorageService.loadMixes());
-  //const [mixName, setMixName] = useState('');//Not in use
+  const [currentMix, setCurrentMix] = useState(StorageService.loadCurrentMix() || []);
+  const [currentEffects, setCurrentEffects] = useState([]);
+  const [mixingHistory, setMixingHistory] = useState([]);
+  const [mixes, setMixes] = useState(StorageService.loadMixes() || []);
+  
+  // Pricing and display states
+  const priceSettings = StorageService.loadPriceSettings() || {
+    salePrice: 0,
+    targetMargin: '',
+    priceMultiplier: 1,
+    packagingType: 'baggies'
+  };
+  const [salePrice, setSalePrice] = useState(priceSettings.salePrice);
+  const [targetMargin, setTargetMargin] = useState(priceSettings.targetMargin);
+  const [priceMultiplier, setPriceMultiplier] = useState(priceSettings.priceMultiplier);
+  const [packagingType, setPackagingType] = useState(priceSettings.packagingType);
+  
+  // UI states
+  const [activeTab, setActiveTab] = useState(StorageService.loadActiveTab() || 'creator');
+  const [showNamePrompt, setShowNamePrompt] = useState(false);
+  const [strainView, setStrainView] = useState(StorageService.loadStrainView() || 'all');
+  
+  // Supply management states
   const [supplies, setSupplies] = useState(StorageService.loadSupplies() || {
     seeds: {},
     ingredients: {},
@@ -75,50 +86,156 @@ const StrainCreator = () => {
   });
   const [supplyHistory, setSupplyHistory] = useState(StorageService.loadSupplyHistory() || []);
   
-  // Load price settings from storage
-  const priceSettings = StorageService.loadPriceSettings();
-  const [salePrice, setSalePrice] = useState(priceSettings.salePrice);
-  const [currentEffects, setCurrentEffects] = useState([]);
-
-  // Initialize proper states for crew management
-  const [dealers, setDealers] = useState(StorageService.loadDealers());
-  const [crewMembers, setCrewMembers] = useState(StorageService.loadCrewMembers());
-  const [dealerTransactions, setDealerTransactions] = useState(StorageService.loadDealerTransactions());
-  const [dailySales, setDailySales] = useState(StorageService.loadDailySales());
-
-  
-  // Load sort and filter settings from storage
-  const sortSettings = StorageService.loadSortSettings();
+  // Sort and filter states
+  const sortSettings = StorageService.loadSortSettings() || { column: 'name', direction: 'asc' };
   const [sortColumn, setSortColumn] = useState(sortSettings.column);
   const [sortDirection, setSortDirection] = useState(sortSettings.direction);
-  const [filterOptions, setFilterOptions] = useState(StorageService.loadFilterOptions());
+  const [filterOptions, setFilterOptions] = useState(StorageService.loadFilterOptions() || {
+    name: '',
+    seedType: '',
+    drugType: '',
+    effect: ''
+  });
   
-  const [targetMargin, setTargetMargin] = useState(priceSettings.targetMargin);
-  const [priceMultiplier, setPriceMultiplier] = useState(priceSettings.priceMultiplier);
-  const [packagingType, setPackagingType] = useState(priceSettings.packagingType);
-  
-  // Load UI state from storage
-  const [activeTab, setActiveTab] = useState(StorageService.loadActiveTab());
-  const [showNamePrompt, setShowNamePrompt] = useState(false);
-  const [strainView, setStrainView] = useState(StorageService.loadStrainView());
-  
-  // Production planning and sales states
-  const [productionPlans, setProductionPlans] = useState(StorageService.loadProductionPlans());
-  const [salesHistory, setSalesHistory] = useState(StorageService.loadSalesHistory());
+  // Production and sales states
+  const [productionPlans, setProductionPlans] = useState(StorageService.loadProductionPlans() || []);
+  const [salesHistory, setSalesHistory] = useState(StorageService.loadSalesHistory() || []);
 
-  // When drug type changes, reset the selected seed
+  // Crew management states
+  const [dealers, setDealers] = useState(StorageService.loadDealers() || []);
+  const [crewMembers, setCrewMembers] = useState(StorageService.loadCrewMembers() || {
+    botanist: 0,
+    cleaner: 0,
+    handler: 0,
+    chemist: 0
+  });
+  const [dealerTransactions, setDealerTransactions] = useState(StorageService.loadDealerTransactions() || []);
+  const [dailySales, setDailySales] = useState(StorageService.loadDailySales() || []);
+
+  // Reset everything when drug type changes
   useEffect(() => {
     setSelectedSeed(null);
     setCurrentMix([]);
     setCurrentEffects([]);
+    setMixingHistory([]);
     StorageService.saveSelectedDrugType(selectedDrugType);
   }, [selectedDrugType]);
 
-  // Local wrapper functions for pricing calculations
-  const getRecommendedPrice = useCallback(() => {
-    return calculateRecommendedPrice(selectedSeed, currentEffects);
-  }, [selectedSeed, currentEffects]);
+  // Update effects when seed changes
+  useEffect(() => {
+    if (selectedSeed) {
+      // Reset mix when seed changes
+      setCurrentMix([]);
+      
+      const seedEffect = selectedSeed.effect;
+      setCurrentEffects([seedEffect]);
+      
+      // Initialize mixing history with just the seed
+      setMixingHistory([{
+        step: 0,
+        ingredient: "Base Seed",
+        effectsBefore: [],
+        effectsAfter: [seedEffect],
+        changes: [`Added ${seedEffect}`]
+      }]);
+      
+      StorageService.saveSelectedSeed(selectedSeed);
+      
+      // Update recommended price based on the seed's effect
+      const recommendedPrice = calculateRecommendedPrice([seedEffect], selectedDrugType);
+      setSalePrice(recommendedPrice);
+    } else {
+      setCurrentEffects([]);
+      setMixingHistory([]);
+    }
+  }, [selectedSeed, selectedDrugType]);
+
+  // Sequential ingredient addition method
+  const addIngredient = (ingredient) => {
+    // Add ingredient to the current mix
+    const updatedMix = [...currentMix, ingredient];
+    setCurrentMix(updatedMix);
+    
+    // Recalculate effects using the sequential approach
+    if (selectedSeed) {
+      const result = calculateStrainEffects(
+        selectedSeed.effect, 
+        updatedMix
+      );
+      
+      setCurrentEffects(result.finalEffects);
+      setMixingHistory(result.mixingHistory);
+      
+      // Update recommended price
+      const recommendedPrice = calculateRecommendedPrice(result.finalEffects, selectedDrugType);
+      setSalePrice(recommendedPrice);
+      
+      // Save to storage
+      StorageService.saveCurrentMix(updatedMix);
+    }
+  };
   
+  // Method to remove the last ingredient added
+  const removeLastIngredient = () => {
+    if (currentMix.length === 0) return;
+    
+    const updatedMix = currentMix.slice(0, currentMix.length - 1);
+    setCurrentMix(updatedMix);
+    
+    // Recalculate effects using the sequential approach
+    if (selectedSeed) {
+      const result = calculateStrainEffects(
+        selectedSeed.effect, 
+        updatedMix
+      );
+      
+      setCurrentEffects(result.finalEffects);
+      setMixingHistory(result.mixingHistory);
+      
+      // Update recommended price
+      const recommendedPrice = calculateRecommendedPrice(result.finalEffects, selectedDrugType);
+      setSalePrice(recommendedPrice);
+      
+      // Save to storage
+      StorageService.saveCurrentMix(updatedMix);
+    }
+  };
+  
+  // Method to reset the mix completely
+  const resetMix = () => {
+    setCurrentMix([]);
+    
+    if (selectedSeed) {
+      setCurrentEffects([selectedSeed.effect]);
+      setMixingHistory([{
+        step: 0,
+        ingredient: "Base Seed",
+        effectsBefore: [],
+        effectsAfter: [selectedSeed.effect],
+        changes: [`Added ${selectedSeed.effect}`]
+      }]);
+      
+      // Update recommended price
+      const recommendedPrice = calculateRecommendedPrice([selectedSeed.effect], selectedDrugType);
+      setSalePrice(recommendedPrice);
+      
+      // Save to storage
+      StorageService.saveCurrentMix([]);
+    } else {
+      setCurrentEffects([]);
+      setMixingHistory([]);
+    }
+  };
+  
+  // Method to finalize the mix and proceed to pricing/saving
+  const finalizeMix = () => {
+    if (currentMix.length > 0 && selectedSeed) {
+      // Activate the save prompt
+      setShowNamePrompt(true);
+    }
+  };
+
+  // Local wrapper functions for pricing calculations
   const getTotalCost = useCallback(() => {
     return calculateTotalCost(selectedSeed, currentMix);
   }, [selectedSeed, currentMix]);
@@ -143,78 +260,6 @@ const StrainCreator = () => {
     return calculateTotalUnits(selectedSeed);
   }, [selectedSeed]);
 
-  // Update current effects when mix changes
-  useEffect(() => {
-    if (selectedSeed) {
-      const effects = calculateStrainEffects(selectedSeed.effect, currentMix);
-      setCurrentEffects(effects);
-    }
-  }, [selectedSeed, currentMix]);
-
-  // Save data to storage when it changes
-  useEffect(() => {
-    StorageService.saveMixes(mixes);
-  }, [mixes]);
-  
-  useEffect(() => {
-    StorageService.saveProductionPlans(productionPlans);
-  }, [productionPlans]);
-  
-  useEffect(() => {
-    StorageService.saveSalesHistory(salesHistory);
-  }, [salesHistory]);
-  
-  useEffect(() => {
-    StorageService.saveActiveTab(activeTab);
-  }, [activeTab]);
-  
-  useEffect(() => {
-    StorageService.saveStrainView(strainView);
-  }, [strainView]);
-  
-  useEffect(() => {
-    StorageService.saveFilterOptions(filterOptions);
-  }, [filterOptions]);
-  
-  useEffect(() => {
-    StorageService.saveSortSettings({ column: sortColumn, direction: sortDirection });
-  }, [sortColumn, sortDirection]);
-
-  useEffect(() => {
-    StorageService.saveSupplies(supplies);
-  }, [supplies]);
-  
-  useEffect(() => {
-    StorageService.saveSupplyHistory(supplyHistory);
-  }, [supplyHistory]);
-  
-  useEffect(() => {
-    StorageService.savePriceSettings({
-      salePrice,
-      targetMargin,
-      priceMultiplier,
-      packagingType
-    });
-  }, [salePrice, targetMargin, priceMultiplier, packagingType]);
-  
-  useEffect(() => {
-    StorageService.saveCurrentMix(currentMix);
-  }, [currentMix]);
-  
-  // Ingredient and seed selection handlers
-  const toggleIngredient = (ingredient) => {
-    setCurrentMix(prev => 
-      prev.some(item => item.name === ingredient.name)
-        ? prev.filter(item => item.name !== ingredient.name)
-        : [...prev, ingredient]
-    );
-  };
-
-  const selectSeed = (seed) => {
-    setSelectedSeed(seed);
-    StorageService.saveSelectedSeed(seed);
-  };
-
   // Price/margin calculation handlers
   const handleCalculateSalePriceFromMargin = () => {
     if (targetMargin && getTotalCost() > 0) {
@@ -230,21 +275,6 @@ const StrainCreator = () => {
     }
   };
 
-  // Handle save mix prompt
-  const handleSavePrompt = () => {
-    if (!selectedSeed) {
-      alert('Please select a base product');
-      return;
-    }
-
-    if (salePrice <= 0) {
-      alert('Please enter a sale price greater than 0');
-      return;
-    }
-
-    setShowNamePrompt(true);
-  };
-
   // Save mix function
   const saveMix = (name) => {
     if (!name.trim()) return;
@@ -257,18 +287,19 @@ const StrainCreator = () => {
       totalUnits: getTotalUnits(),
       ingredients: [...currentMix],
       effects: [...currentEffects],
+      mixingSequence: [...currentMix].map(ing => ing.name), // Store the exact sequence
       salePrice: Math.round(parseFloat(salePrice)),
       totalCost: getTotalCost(),
       profit: getProfit(),
       profitMargin: getProfitMargin(),
-      recommendedPrice: getRecommendedPrice(),
       priceMultiplier: priceMultiplier,
       packagingType: packagingType,
-      favorite: false
+      favorite: false,
+      dateCreated: new Date().toISOString()
     };
 
     setMixes(prev => [...prev, newMix]);
-    setCurrentMix([]);
+    resetMix();
     setSelectedSeed(null);
     setSalePrice(0);
   };
@@ -348,23 +379,22 @@ const StrainCreator = () => {
     setProductionPlans(prev => prev.filter(plan => plan.id !== planId));
   };
 
-  const reproduceProductionPlan = (originalPlan, newQuantity) => {
+  const reproduceProductionPlan = (originalPlan, newQuantity, quality) => {
     // Get the original strain information
     const strain = mixes.find(mix => mix.id === originalPlan.strainId);
     
     if (!strain) {
-      // If the strain can't be found, show an error
-      alert(`Unable to find strain data for "${originalPlan.strainName}". It may have been deleted.`);
+      console.error("Unable to find strain for reproduction");
       return;
     }
     
     // Calculate a new production plan with the updated quantity
-    const newPlan = calculateProductionPlan(strain, newQuantity);
+    const newPlan = calculateProductionPlan(strain, newQuantity, quality);
     
     // Add the new plan to production plans
     setProductionPlans(prev => [...prev, newPlan]);
     
-    // Optionally switch to the production tab
+    // Switch to the production tab
     setActiveTab('production');
   };
 
@@ -381,6 +411,7 @@ const StrainCreator = () => {
   // Tab switching
   const handleTabChange = (tab) => {
     setActiveTab(tab);
+    StorageService.saveActiveTab(tab);
   };
 
   // Filter and sort mixes
@@ -391,48 +422,49 @@ const StrainCreator = () => {
       : [...mixes];
     
     // Then apply additional filters
-    return filtered
-      .filter(mix => {
-        // Filter by strain name
-        if (filterOptions.name && !mix.name.toLowerCase().includes(filterOptions.name.toLowerCase())) {
-          return false;
-        }
-        
-        // Filter by drug type
-        if (filterOptions.drugType && mix.drugType !== filterOptions.drugType) {
-          return false;
-        }
-        
-        // Filter by seed type
-        if (filterOptions.seedType && !mix.seed.name.toLowerCase().includes(filterOptions.seedType.toLowerCase())) {
-          return false;
-        }
-        
-        // Filter by effect
-        if (filterOptions.effect) {
-          const hasEffect = mix.effects.some(
-            effect => effect.toLowerCase().includes(filterOptions.effect.toLowerCase())
-          );
-          if (!hasEffect) return false;
-        }
-        
-        return true;
-      })
-      .sort((a, b) => {
-        if (!sortColumn) return 0;
+    filtered = filtered.filter(mix => {
+      // Filter by strain name
+      if (filterOptions.name && !mix.name.toLowerCase().includes(filterOptions.name.toLowerCase())) {
+        return false;
+      }
+      
+      // Filter by drug type
+      if (filterOptions.drugType && mix.drugType !== filterOptions.drugType) {
+        return false;
+      }
+      
+      // Filter by seed type
+      if (filterOptions.seedType && !mix.seed.name.toLowerCase().includes(filterOptions.seedType.toLowerCase())) {
+        return false;
+      }
+      
+      // Filter by effect
+      if (filterOptions.effect) {
+        const hasEffect = mix.effects.some(
+          effect => effect.toLowerCase().includes(filterOptions.effect.toLowerCase())
+        );
+        if (!hasEffect) return false;
+      }
+      
+      return true;
+    });
+    
+    // Sort items
+    return filtered.sort((a, b) => {
+      if (!sortColumn) return 0;
 
-        let aValue = sortColumn === 'seed' ? a.seed.name : a[sortColumn];
-        let bValue = sortColumn === 'seed' ? b.seed.name : b[sortColumn];
+      let aValue = sortColumn === 'seed' ? a.seed.name : a[sortColumn];
+      let bValue = sortColumn === 'seed' ? b.seed.name : b[sortColumn];
 
-        if (typeof aValue === 'string') {
-          aValue = aValue.toLowerCase();
-          bValue = bValue.toLowerCase();
-        }
+      if (typeof aValue === 'string') {
+        aValue = aValue.toLowerCase();
+        bValue = bValue.toLowerCase();
+      }
 
-        if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
-        if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
-        return 0;
-      });
+      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+      return 0;
+    });
   }, [mixes, filterOptions, sortColumn, sortDirection, strainView]);
 
   // Manual save function for the AutoSave component
@@ -454,10 +486,17 @@ const StrainCreator = () => {
       priceMultiplier,
       packagingType
     });
+    StorageService.saveSupplies(supplies);
+    StorageService.saveSupplyHistory(supplyHistory);
+    StorageService.saveDealers(dealers);
+    StorageService.saveCrewMembers(crewMembers);
+    StorageService.saveDealerTransactions(dealerTransactions);
+    StorageService.saveDailySales(dailySales);
   }, [
     selectedDrugType, currentMix, selectedSeed, mixes, productionPlans, 
     salesHistory, activeTab, strainView, filterOptions, sortColumn, 
-    sortDirection, salePrice, targetMargin, priceMultiplier, packagingType
+    sortDirection, salePrice, targetMargin, priceMultiplier, packagingType,
+    supplies, supplyHistory, dealers, crewMembers, dealerTransactions, dailySales
   ]);
 
   // Create a game state object to pass to AutoSave
@@ -472,12 +511,85 @@ const StrainCreator = () => {
     priceSettings: { salePrice, targetMargin, priceMultiplier, packagingType },
     currentMix,
     selectedSeed,
-    selectedDrugType
+    selectedDrugType,
+    supplies,
+    supplyHistory,
+    dealers,
+    crewMembers,
+    dealerTransactions,
+    dailySales
   }), [
     mixes, productionPlans, salesHistory, activeTab, strainView, 
     filterOptions, sortColumn, sortDirection, salePrice, targetMargin, 
-    priceMultiplier, packagingType, currentMix, selectedSeed, selectedDrugType
+    priceMultiplier, packagingType, currentMix, selectedSeed, selectedDrugType,
+    supplies, supplyHistory, dealers, crewMembers, dealerTransactions, dailySales
   ]);
+
+  // Save data to storage when it changes
+  useEffect(() => {
+    StorageService.saveMixes(mixes);
+  }, [mixes]);
+  
+  useEffect(() => {
+    StorageService.saveProductionPlans(productionPlans);
+  }, [productionPlans]);
+  
+  useEffect(() => {
+    StorageService.saveSalesHistory(salesHistory);
+  }, [salesHistory]);
+  
+  useEffect(() => {
+    StorageService.saveActiveTab(activeTab);
+  }, [activeTab]);
+  
+  useEffect(() => {
+    StorageService.saveStrainView(strainView);
+  }, [strainView]);
+  
+  useEffect(() => {
+    StorageService.saveFilterOptions(filterOptions);
+  }, [filterOptions]);
+  
+  useEffect(() => {
+    StorageService.saveSortSettings({ column: sortColumn, direction: sortDirection });
+  }, [sortColumn, sortDirection]);
+  
+  useEffect(() => {
+    StorageService.savePriceSettings({
+      salePrice,
+      targetMargin,
+      priceMultiplier,
+      packagingType
+    });
+  }, [salePrice, targetMargin, priceMultiplier, packagingType]);
+  
+  useEffect(() => {
+    StorageService.saveCurrentMix(currentMix);
+  }, [currentMix]);
+  
+  useEffect(() => {
+    StorageService.saveSupplies(supplies);
+  }, [supplies]);
+  
+  useEffect(() => {
+    StorageService.saveSupplyHistory(supplyHistory);
+  }, [supplyHistory]);
+  
+  useEffect(() => {
+    StorageService.saveDealers(dealers);
+  }, [dealers]);
+  
+  useEffect(() => {
+    StorageService.saveCrewMembers(crewMembers);
+  }, [crewMembers]);
+  
+  useEffect(() => {
+    StorageService.saveDealerTransactions(dealerTransactions);
+  }, [dealerTransactions]);
+  
+  useEffect(() => {
+    StorageService.saveDailySales(dailySales);
+  }, [dailySales]);
 
 // Render the component
 return (
@@ -585,17 +697,22 @@ return (
           <SeedSelector 
             seedTypes={seedTypes} 
             selectedSeed={selectedSeed} 
-            onSelectSeed={selectSeed}
+            onSelectSeed={setSelectedSeed}
             selectedDrugType={selectedDrugType}
           />
 
-          {/* Additives Selection */}
-          <IngredientsSelector 
-            ingredients={ingredients} 
-            currentMix={currentMix} 
-            additiveEffects={additiveEffects}
+          {/* Sequential Ingredients Selector */}
+          <SequentialIngredientsSelector
+            ingredients={ingredients}
+            currentMix={currentMix}
+            currentEffects={currentEffects}
+            mixingHistory={mixingHistory}
             effectColors={effectColors}
-            toggleIngredient={toggleIngredient}
+            additiveEffects={additiveEffects}
+            addIngredient={addIngredient}
+            removeLastIngredient={removeLastIngredient}
+            resetMix={resetMix}
+            finalizeMix={finalizeMix}
             selectedDrugType={selectedDrugType}
           />
 
@@ -637,19 +754,16 @@ return (
               calculateProfitMargin={getProfitMargin}
               calculateTotalBuddyProfit={getTotalBatchProfit}
               calculatePackagingProfit={getPackagingProfit}
-              calculateTotalUnits={getTotalUnits}
               priceMultiplier={priceMultiplier}
               packagingType={packagingType}
-              selectedSeed={selectedSeed}
-              drugTypes={drugTypes}
             />
           )}
 
           {/* Save Mix Button */}
           <button
             className="btn-primary"
-            onClick={handleSavePrompt}
-            disabled={!selectedSeed || salePrice <= 0}
+            onClick={finalizeMix}
+            disabled={!selectedSeed || currentMix.length === 0 || salePrice <= 0}
           >
             <CheckCircle className="mr-2 w-5 h-5" />
             Save Creation
@@ -673,16 +787,14 @@ return (
         <ProductionPlanningTab
           strains={mixes}
           productionPlans={productionPlans}
-          salesHistory={salesHistory}
-          addToProduction={addToProduction}
           updateProductionPlan={updateProductionPlan}
           markAsSold={markAsSold}
           removeProductionPlan={removeProductionPlan}
           reproduceProductionPlan={reproduceProductionPlan}
           drugTypes={drugTypes}
         />
-      ) : activeTab === 'supplies' ? (
-          <SupplyManagementTab
+      ) : activeTab === 'supply' ? (
+        <SupplyManagementTab
           supplies={supplies}
           setSupplies={setSupplies}
           supplyHistory={supplyHistory}
@@ -717,17 +829,17 @@ return (
         isOpen={showNamePrompt}
         onClose={() => setShowNamePrompt(false)}
         onSave={saveMix}
-        initialName={''}  // Pass empty string instead of using mixName
+        initialName={''}
       />
     </div>
 
-    {/* Add the AutoSave component */}
+    {/* AutoSave component */}
     <AutoSave 
       gameState={gameState}
       onManualSave={handleManualSave}
     />
   </div>
 );
-};
+}
 
 export default StrainCreator;

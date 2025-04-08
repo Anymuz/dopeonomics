@@ -2,7 +2,10 @@
 
 // Calculate effect multiplier for price calculations
 export const calculateEffectMultiplier = (currentEffects) => {
-  if (!currentEffects || currentEffects.length === 0) return 0;
+  // Add a safety check to ensure currentEffects is an array
+  if (!currentEffects || !Array.isArray(currentEffects) || currentEffects.length === 0) {
+    return 0;
+  }
   
   // Multiplier values for each effect
   const effectMultipliers = {
@@ -49,23 +52,18 @@ export const calculateEffectMultiplier = (currentEffects) => {
 };
 
 // Calculate recommended price based on drug type and effects
-export const calculateRecommendedPrice = (selectedSeed, currentEffects) => {
-  if (!selectedSeed) return 0;
-  
-  // Get the base price based on drug type
-  let basePrice;
-  
-  if (selectedSeed.drugType === 'weed') {
-    basePrice = 35; // Base price for weed
-  } else if (selectedSeed.drugType === 'meth') {
-    basePrice = selectedSeed.basePrice || 70; // Base price for meth
-  } else if (selectedSeed.drugType === 'cocaine') {
-    basePrice = selectedSeed.basePrice || 90; // Base price for cocaine
-  } else {
-    basePrice = 35; // Default fallback
+export const calculateRecommendedPrice = (effects, productType = 'Weed') => {
+  // Add safety check for effects
+  if (!effects || !Array.isArray(effects)) {
+    effects = [];
   }
   
-  const effectMultiplier = calculateEffectMultiplier(currentEffects);
+  // Get base price based on drug type
+  const basePrice = productType === 'Weed' ? 35 : 
+                    productType === 'Meth' ? 70 : 
+                    productType === 'Cocaine' ? 90 : 35;
+  
+  const effectMultiplier = calculateEffectMultiplier(effects);
   return Math.round(basePrice * (1 + effectMultiplier));
 };
 
@@ -86,12 +84,22 @@ export const calculateTotalUnits = (selectedSeed) => {
 
 // Calculate total ingredient cost
 export const calculateIngredientCost = (currentMix) => {
-  return currentMix.reduce((total, ingredient) => total + ingredient.cost, 0);
+  if (!currentMix || !Array.isArray(currentMix)) {
+    return 0;
+  }
+  
+  return currentMix.reduce((total, ingredient) => {
+    const quantity = ingredient.quantity || 1;
+    return total + (ingredient.cost * quantity);
+  }, 0);
 };
 
 // Calculate total cost including seed cost per unit
 export const calculateTotalCost = (selectedSeed, currentMix) => {
   if (!selectedSeed) return 0;
+  if (!currentMix || !Array.isArray(currentMix)) {
+    currentMix = [];
+  }
   
   const ingredientsCost = calculateIngredientCost(currentMix);
   
@@ -172,14 +180,23 @@ export const calculatePackagingNeeds = (quantity, type) => {
 
 // Calculate production plan data for a strain
 export const calculateProductionPlan = (strain, quantity) => {
+  // Safety checks
+  if (!strain || !strain.seed) return null;
+  
+  // Ensure quantity is a valid number
+  quantity = parseInt(quantity) || calculateTotalUnits(strain.seed);
+  
   const seedsOrBatchesNeeded = Math.ceil(quantity / calculateTotalUnits(strain.seed));
   const seedCost = seedsOrBatchesNeeded * strain.seed.cost;
   
-  const ingredientsNeeded = strain.ingredients.map(ingredient => ({
-    name: ingredient.name,
-    quantity: quantity,
-    totalCost: ingredient.cost * quantity
-  }));
+  const ingredientsNeeded = (strain.ingredients || []).map(ingredient => {
+    const quantity = ingredient.quantity || 1;
+    return {
+      name: ingredient.name,
+      quantity: quantity,
+      totalCost: ingredient.cost * quantity
+    };
+  });
   
   const seedIngredient = {
     name: strain.seed.name,
@@ -187,10 +204,13 @@ export const calculateProductionPlan = (strain, quantity) => {
     totalCost: seedCost
   };
   
-  const packagingNeeded = calculatePackagingNeeds(quantity, strain.packagingType);
+  const packagingNeeded = calculatePackagingNeeds(quantity, strain.packagingType || 'baggies');
   
   const productionCost = seedCost + 
-    strain.ingredients.reduce((sum, ing) => sum + (ing.cost * quantity), 0) + 
+    (strain.ingredients || []).reduce((sum, ing) => {
+      const quantity = ing.quantity || 1;
+      return sum + (ing.cost * quantity);
+    }, 0) + 
     packagingNeeded.cost;
   
   const expectedRevenue = strain.salePrice * quantity;
@@ -200,7 +220,7 @@ export const calculateProductionPlan = (strain, quantity) => {
     id: Date.now(),
     strainId: strain.id,
     strainName: strain.name,
-    drugType: strain.drugType,
+    drugType: strain.drugType || 'weed',
     plannedQuantity: quantity,
     status: 'planned',
     dateCreated: new Date().toISOString(),

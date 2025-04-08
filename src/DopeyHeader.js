@@ -53,7 +53,6 @@ const DopeyHeader = () => {
         <div className="text-lg text-gray-600 font-medium flex items-center">
           <span className="mr-2">featuring</span>
           <span className="font-bold text-green-600 mr-1">Dopey</span>
-          <span className="text-sm bg-gray-200 px-2 py-1 rounded-full">The Chronic Entrepreneur</span>
         </div>
         
         {/* Decorative Line */}
