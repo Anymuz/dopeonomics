@@ -30,7 +30,7 @@ export const ProfitInfoDisplay = ({
       </div>
     </div>
     <div className="flex justify-between items-center text-gray-700 pt-2 mt-2 border-t border-gray-200">
-      <div>Total profit with {priceMultiplier}x multiplier:</div>
+      <div>Total profit per {priceMultiplier}x stack:</div>
       <div className={calculateTotalBuddyProfit() >= 0 ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}>
         ${Math.round(calculateTotalBuddyProfit())}
       </div>

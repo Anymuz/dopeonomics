@@ -49,12 +49,6 @@ const DopeyHeader = () => {
           </h1>
         </div>
         
-        {/* Subtitle with Character Name */}
-        <div className="text-lg text-gray-600 font-medium flex items-center">
-          <span className="mr-2">featuring</span>
-          <span className="font-bold text-green-600 mr-1">Dopey</span>
-        </div>
-        
         {/* Decorative Line */}
         <div className="flex items-center w-full max-w-md mt-4">
           <div className="flex-grow h-0.5 bg-gradient-to-r from-purple-200 via-green-200 to-blue-200"></div>

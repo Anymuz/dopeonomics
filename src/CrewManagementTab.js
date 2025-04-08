@@ -445,7 +445,7 @@ const CrewManagementTab = ({
         <div className="space-y-6">
           {/* Efficiency Score */}
           <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-center">
-            <h3 className="text-lg font-medium text-gray-800 mb-2">Business Efficiency Score</h3>
+            <h3 className="text-lg font-medium text-gray-800 mb-2">Gang Gang Efficiency</h3>
             <div className="relative h-32 w-32 mx-auto">
               <div className="absolute inset-0 flex items-center justify-center">
                 <span className="text-4xl font-bold text-red-600">{calculateEfficiencyScore()}</span>

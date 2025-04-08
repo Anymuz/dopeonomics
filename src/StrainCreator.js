@@ -3,8 +3,7 @@ import {
   CheckCircle,
   FlaskConical,
   Factory,
-  Star,
-  Home,
+  Heart,
   Users,
   Package,
   BarChart2
@@ -14,9 +13,10 @@ import {
 import StorageService from './StorageService';
 import AutoSave from './AutoSave';
 import DopeyHeader from './DopeyHeader';
+import CombinedStrainsTab from './CombinedStrainsTab';
 
 // Import components
-import { ProductionPlanningTab } from './ProductionPlanningComponents';
+import ProductionPlanningTab from './ProductionPlanningTab';
 import { SeedSelector } from './IngredientComponents';
 import { CurrentMixDisplay } from './MixDisplayComponents';
 import { SequentialIngredientsSelector } from './SequentialIngredientsSelector';
@@ -24,7 +24,6 @@ import { PackagingSelector, PriceMarginInputs} from './PackagingComponents';
 import { ProfitInfoDisplay } from './ProfitComponents';
 import { DrugTypeSelector } from './DrugTypeSelector';
 import { NamePromptModal } from './NamePromptModal';
-import { SavedStrainsTable } from './SavedStrainsTable';
 import SalesHistoryTab from './SalesHistoryTab';
 import CrewManagementTab from './CrewManagementTab';
 import SupplyManagementTab from './SupplyManagementTab';
@@ -76,7 +75,6 @@ const StrainCreator = () => {
   // UI states
   const [activeTab, setActiveTab] = useState(StorageService.loadActiveTab() || 'creator');
   const [showNamePrompt, setShowNamePrompt] = useState(false);
-  const [strainView, setStrainView] = useState(StorageService.loadStrainView() || 'all');
   
   // Supply management states
   const [supplies, setSupplies] = useState(StorageService.loadSupplies() || {
@@ -323,13 +321,142 @@ const StrainCreator = () => {
     
     // Default to production based on drug type yield
     const defaultQuantity = calculateTotalUnits(strain.seed);
-    const productionPlan = calculateProductionPlan(strain, defaultQuantity);
+    
+    // Create a production plan with properly calculated ingredient quantities
+    const productionPlan = createEnhancedProductionPlan(strain, defaultQuantity);
     
     setProductionPlans(prev => [...prev, productionPlan]);
     // Switch to production tab
     setActiveTab('production');
   };
   
+  // Calculate packaging needs for a given quantity
+  const calculatePackagingNeeds = (quantity, type) => {
+    if (type === 'baggies') {
+      return {
+        type: 'baggies',
+        quantity: quantity,
+        cost: quantity
+      };
+    } else {
+      const jarsNeeded = Math.ceil(quantity / 5);
+      return {
+        type: 'jars',
+        quantity: jarsNeeded,
+        cost: jarsNeeded * 3
+      };
+    }
+  };
+  
+  // Enhanced production plan creation with proper ingredient calculations
+  const createEnhancedProductionPlan = (strain, quantity) => {
+    // First, count how many times each ingredient appears in the mix sequence
+    const ingredientCounts = {};
+    
+    if (strain.mixingSequence) {
+      // Count ingredient usage from the mixing sequence
+      strain.mixingSequence.forEach(ingredientName => {
+        ingredientCounts[ingredientName] = (ingredientCounts[ingredientName] || 0) + 1;
+      });
+    } else if (strain.ingredients) {
+      // Fallback to ingredients array if mixingSequence not available
+      strain.ingredients.forEach(ingredient => {
+        const name = ingredient.name;
+        const qty = ingredient.quantity || 1;
+        ingredientCounts[name] = (ingredientCounts[name] || 0) + qty;
+      });
+    }
+    
+    // Now calculate the proper ingredient needs
+    const enhancedIngredientNeeds = [];
+    
+    // Add the seed/base precursor first
+    const seedsNeeded = Math.ceil(quantity / calculateTotalUnits(strain.seed));
+    const seedIngredient = {
+      name: strain.seed.name,
+      quantity: seedsNeeded,
+      totalCost: strain.seed.cost * seedsNeeded
+    };
+    enhancedIngredientNeeds.push(seedIngredient);
+    
+    // Add drug-specific base ingredients
+    if (strain.drugType === 'meth') {
+      // Add required meth production ingredients
+      enhancedIngredientNeeds.push({
+        name: "Acid",
+        quantity: seedsNeeded, // One per batch
+        totalCost: 40 * seedsNeeded
+      });
+      
+      enhancedIngredientNeeds.push({
+        name: "Red Phosphorus",
+        quantity: seedsNeeded, // One per batch
+        totalCost: 40 * seedsNeeded
+      });
+    } 
+    else if (strain.drugType === 'cocaine') {
+      // Add required cocaine production ingredients
+      enhancedIngredientNeeds.push({
+        name: "Coca Leaves",
+        quantity: 20 * seedsNeeded, // 20 leaves per batch
+        totalCost: (strain.seed.cost / 10) * 20 * seedsNeeded // Estimate cost based on seed
+      });
+      
+      // Gasoline is already in common ingredients, but ensure it's added for cocaine
+      if (!ingredientCounts['Gasoline']) {
+        enhancedIngredientNeeds.push({
+          name: "Gasoline",
+          quantity: seedsNeeded, // One per batch
+          totalCost: 30 * seedsNeeded
+        });
+      }
+    }
+    
+    // Add all other ingredients with proper quantities
+    Object.entries(ingredientCounts).forEach(([name, count]) => {
+      // Find the ingredient in the strain's ingredients
+      const ingredient = strain.ingredients.find(ing => ing.name === name);
+      if (ingredient) {
+        enhancedIngredientNeeds.push({
+          name: name,
+          quantity: count * quantity, // Multiply by the production quantity
+          totalCost: ingredient.cost * count * quantity
+        });
+      }
+    });
+    
+    // Add packaging needs
+    const packagingNeeded = calculatePackagingNeeds(quantity, strain.packagingType || 'baggies');
+    
+    // Calculate total production cost
+    const productionCost = enhancedIngredientNeeds.reduce((sum, ing) => sum + ing.totalCost, 0) + packagingNeeded.cost;
+    
+    // Expected revenue and profit
+    const expectedRevenue = strain.salePrice * quantity;
+    const expectedProfit = expectedRevenue - productionCost;
+    
+    // Create the production plan object
+    return {
+      id: Date.now(),
+      strainId: strain.id,
+      strainName: strain.name,
+      drugType: strain.drugType || 'weed',
+      plannedQuantity: quantity,
+      status: 'planned',
+      dateCreated: new Date().toISOString(),
+      dateSold: null,
+      totalIngredientNeeds: enhancedIngredientNeeds,
+      packagingNeeded: packagingNeeded,
+      productionCost: productionCost,
+      salePrice: strain.salePrice,
+      expectedRevenue: expectedRevenue,
+      expectedProfit: expectedProfit,
+      effects: strain.effects, // Make sure effects are passed through
+      productionStage: 'plan' // Start at planning stage
+    };
+  };
+  
+  // Function to update a production plan
   const updateProductionPlan = (planId, updates) => {
     setProductionPlans(prev => prev.map(plan => {
       if (plan.id !== planId) return plan;
@@ -338,11 +465,33 @@ const StrainCreator = () => {
       if (updates.plannedQuantity && updates.plannedQuantity !== plan.plannedQuantity) {
         const strain = mixes.find(mix => mix.id === plan.strainId);
         if (strain) {
-          const updatedPlan = calculateProductionPlan(strain, updates.plannedQuantity);
-          return { ...updatedPlan, id: plan.id, dateCreated: plan.dateCreated };
+          // Use our enhanced function for recalculation
+          const updatedPlan = createEnhancedProductionPlan(strain, updates.plannedQuantity);
+          // Preserve the original ID and any stage-specific data
+          return { 
+            ...updatedPlan, 
+            id: plan.id, 
+            dateCreated: plan.dateCreated,
+            productionStage: updates.productionStage || plan.productionStage,
+            purchasedIngredients: updates.purchasedIngredients || plan.purchasedIngredients,
+            cookingSteps: updates.cookingSteps || plan.cookingSteps,
+            sellingData: updates.sellingData || plan.sellingData
+          };
         }
       }
       
+      // If price changed, recalculate revenue and profit
+      if (updates.salePrice && updates.salePrice !== plan.salePrice) {
+        const newExpectedRevenue = plan.plannedQuantity * updates.salePrice;
+        return {
+          ...plan,
+          ...updates,
+          expectedRevenue: newExpectedRevenue,
+          expectedProfit: newExpectedRevenue - plan.productionCost
+        };
+      }
+      
+      // For all other updates
       return { ...plan, ...updates };
     }));
   };
@@ -417,9 +566,7 @@ const StrainCreator = () => {
   // Filter and sort mixes
   const filteredAndSortedMixes = useMemo(() => {
     // First filter by strain view (all or favorites)
-    let filtered = strainView === 'favorites' 
-      ? mixes.filter(mix => mix.favorite)
-      : [...mixes];
+    let filtered = [...mixes];
     
     // Then apply additional filters
     filtered = filtered.filter(mix => {
@@ -465,7 +612,7 @@ const StrainCreator = () => {
       if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
       return 0;
     });
-  }, [mixes, filterOptions, sortColumn, sortDirection, strainView]);
+  }, [mixes, filterOptions, sortColumn, sortDirection]);
 
   // Manual save function for the AutoSave component
   const handleManualSave = useCallback(() => {
@@ -477,7 +624,6 @@ const StrainCreator = () => {
     StorageService.saveProductionPlans(productionPlans);
     StorageService.saveSalesHistory(salesHistory);
     StorageService.saveActiveTab(activeTab);
-    StorageService.saveStrainView(strainView);
     StorageService.saveFilterOptions(filterOptions);
     StorageService.saveSortSettings({ column: sortColumn, direction: sortDirection });
     StorageService.savePriceSettings({
@@ -494,7 +640,7 @@ const StrainCreator = () => {
     StorageService.saveDailySales(dailySales);
   }, [
     selectedDrugType, currentMix, selectedSeed, mixes, productionPlans, 
-    salesHistory, activeTab, strainView, filterOptions, sortColumn, 
+    salesHistory, activeTab, filterOptions, sortColumn, 
     sortDirection, salePrice, targetMargin, priceMultiplier, packagingType,
     supplies, supplyHistory, dealers, crewMembers, dealerTransactions, dailySales
   ]);
@@ -505,7 +651,6 @@ const StrainCreator = () => {
     productionPlans,
     salesHistory,
     activeTab,
-    strainView,
     filterOptions,
     sortSettings: { column: sortColumn, direction: sortDirection },
     priceSettings: { salePrice, targetMargin, priceMultiplier, packagingType },
@@ -519,7 +664,7 @@ const StrainCreator = () => {
     dealerTransactions,
     dailySales
   }), [
-    mixes, productionPlans, salesHistory, activeTab, strainView, 
+    mixes, productionPlans, salesHistory, activeTab, 
     filterOptions, sortColumn, sortDirection, salePrice, targetMargin, 
     priceMultiplier, packagingType, currentMix, selectedSeed, selectedDrugType,
     supplies, supplyHistory, dealers, crewMembers, dealerTransactions, dailySales
@@ -541,10 +686,6 @@ const StrainCreator = () => {
   useEffect(() => {
     StorageService.saveActiveTab(activeTab);
   }, [activeTab]);
-  
-  useEffect(() => {
-    StorageService.saveStrainView(strainView);
-  }, [strainView]);
   
   useEffect(() => {
     StorageService.saveFilterOptions(filterOptions);
@@ -592,13 +733,13 @@ const StrainCreator = () => {
   }, [dailySales]);
 
 // Render the component
-return (
-  <div className="bg-gradient-to-br from-gray-100 to-gray-50 min-h-screen flex justify-center items-start py-8">
-    <div className="w-full max-w-5xl mx-auto p-4">
-      <DopeyHeader />
-      
-      {/* Main Navigation Tabs */}
-      <div className="flex border-b border-gray-200 mb-6 overflow-x-auto">
+      return (
+        <div className="bg-gradient-to-br from-gray-100 to-gray-50 min-h-screen flex justify-center items-start py-8">
+          <div className="w-full max-w-5xl mx-auto p-4">
+            <DopeyHeader />
+            
+            {/* Main Navigation Tabs */}
+            <div className="flex border-b border-gray-200 mb-6 overflow-x-auto">
         <button
           className={`py-2 px-4 font-medium text-sm ${
             activeTab === 'creator'
@@ -612,31 +753,16 @@ return (
         </button>
         <button
           className={`py-2 px-4 font-medium text-sm ${
-            activeTab === 'saved' && strainView === 'all'
+            activeTab === 'saved'
               ? 'text-green-600 border-b-2 border-green-600'
               : 'text-gray-500 hover:text-gray-700'
           }`}
           onClick={() => {
             handleTabChange('saved');
-            setStrainView('all');
           }}
         >
-          <Home className="inline-block mr-1 w-4 h-4" />
-          Saved Strains
-        </button>
-        <button
-          className={`py-2 px-4 font-medium text-sm ${
-            activeTab === 'saved' && strainView === 'favorites'
-              ? 'text-yellow-600 border-b-2 border-yellow-600'
-              : 'text-gray-500 hover:text-gray-700'
-          }`}
-          onClick={() => {
-            handleTabChange('saved');
-            setStrainView('favorites');
-          }}
-        >
-          <Star className="inline-block mr-1 w-4 h-4" />
-          Favorites
+          <Heart className="inline-block mr-1 w-4 h-4" />
+          My Strains
         </button>
         <button
           className={`py-2 px-4 font-medium text-sm ${
@@ -651,14 +777,14 @@ return (
         </button>
         <button
           className={`py-2 px-4 font-medium text-sm ${
-            activeTab === 'supply'
-              ? 'text-purple-600 border-b-2 border-purple-600'
+            activeTab === 'crew'
+              ? 'text-teal-600 border-b-2 border-teal-600'
               : 'text-gray-500 hover:text-gray-700'
           }`}
-          onClick={() => handleTabChange('supply')}
+          onClick={() => handleTabChange('crew')}
         >
-          <Package className="inline-block mr-1 w-4 h-4" />
-          Supplies
+          <Users className="inline-block mr-1 w-4 h-4" />
+          Crew
         </button>
         <button
           className={`py-2 px-4 font-medium text-sm ${
@@ -673,14 +799,14 @@ return (
         </button>
         <button
           className={`py-2 px-4 font-medium text-sm ${
-            activeTab === 'crew'
-              ? 'text-teal-600 border-b-2 border-teal-600'
+            activeTab === 'supply'
+              ? 'text-purple-600 border-b-2 border-purple-600'
               : 'text-gray-500 hover:text-gray-700'
           }`}
-          onClick={() => handleTabChange('crew')}
+          onClick={() => handleTabChange('supply')}
         >
-          <Users className="inline-block mr-1 w-4 h-4" />
-          Crew
+          <Package className="inline-block mr-1 w-4 h-4" />
+          Supplies
         </button>
       </div>
 
@@ -770,7 +896,7 @@ return (
           </button>
         </div>
       ) : activeTab === 'saved' ? (
-        <SavedStrainsTable 
+        <CombinedStrainsTab
           mixes={filteredAndSortedMixes}
           filterOptions={filterOptions}
           setFilterOptions={setFilterOptions}
@@ -792,6 +918,11 @@ return (
           removeProductionPlan={removeProductionPlan}
           reproduceProductionPlan={reproduceProductionPlan}
           drugTypes={drugTypes}
+          dealers={dealers}
+          dailySales={dailySales}
+          setDailySales={setDailySales}
+          dealerTransactions={dealerTransactions}
+          setDealerTransactions={setDealerTransactions}
         />
       ) : activeTab === 'supply' ? (
         <SupplyManagementTab
