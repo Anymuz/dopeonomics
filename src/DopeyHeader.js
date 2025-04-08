@@ -106,32 +106,12 @@ const DopeyHeader = () => {
 
             <div className="space-y-4">
               <a 
-                href="https://www.buymeacoffee.com/yourusername" 
+                href="https://buymeacoffee.com/fustahsonlabs" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="block w-full py-3 bg-yellow-400 hover:bg-yellow-500 text-white rounded-md font-medium text-center flex items-center justify-center"
               >
                 ☕ Buy me a coffee
-                <ExternalLink className="w-4 h-4 ml-2" />
-              </a>
-              
-              <a 
-                href="https://ko-fi.com/yourusername" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="block w-full py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-md font-medium text-center flex items-center justify-center"
-              >
-                Ko-fi Donation
-                <ExternalLink className="w-4 h-4 ml-2" />
-              </a>
-              
-              <a 
-                href="https://www.patreon.com/yourusername" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="block w-full py-3 bg-red-500 hover:bg-red-600 text-white rounded-md font-medium text-center flex items-center justify-center"
-              >
-                Support on Patreon
                 <ExternalLink className="w-4 h-4 ml-2" />
               </a>
             </div>
