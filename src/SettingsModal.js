@@ -1,11 +1,10 @@
 // SettingsModal.js
 import React, { useState } from 'react';
-import { Settings, X, Trash2, AlertTriangle, Download} from 'lucide-react';
+import { Settings, X, Trash2, AlertTriangle, Download, Upload } from 'lucide-react';
 import StorageService from './StorageService';
 
 const SettingsModal = ({ isOpen, onClose }) => {
   const [showConfirmReset, setShowConfirmReset] = useState(false);
-  //const [exportDataUrl, setExportDataUrl] = useState(null);// Not currently in use
   const [importError, setImportError] = useState(null);
 
   // Close modal if not open
@@ -27,6 +26,12 @@ const SettingsModal = ({ isOpen, onClose }) => {
         selectedDrugType: StorageService.loadSelectedDrugType(),
         selectedSeed: StorageService.loadSelectedSeed(),
         priceSettings: StorageService.loadPriceSettings(),
+        supplies: StorageService.loadSupplies(),
+        supplyHistory: StorageService.loadSupplyHistory(),
+        dealers: StorageService.loadDealers(),
+        crewMembers: StorageService.loadCrewMembers(),
+        dealerTransactions: StorageService.loadDealerTransactions(),
+        dailySales: StorageService.loadDailySales(),
         exportDate: new Date().toISOString(),
         version: '1.0.0' // Add version for future compatibility
       };
@@ -34,11 +39,8 @@ const SettingsModal = ({ isOpen, onClose }) => {
       // Create a Blob with the data
       const blob = new Blob([JSON.stringify(gameData, null, 2)], { type: 'application/json' });
       
-      // Create a downloadable URL
-      //const url = URL.createObjectURL(blob);
-      //setExportDataUrl(url);// - Not in use
-      
-      // Create element to trigger download
+      // Create a downloadable URL and trigger download
+      const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = `dopeonomics-save-${new Date().toISOString().slice(0, 10)}.json`;
@@ -84,6 +86,12 @@ const SettingsModal = ({ isOpen, onClose }) => {
           if (importedData.selectedDrugType) StorageService.saveSelectedDrugType(importedData.selectedDrugType);
           if (importedData.selectedSeed) StorageService.saveSelectedSeed(importedData.selectedSeed);
           if (importedData.priceSettings) StorageService.savePriceSettings(importedData.priceSettings);
+          if (importedData.supplies) StorageService.saveSupplies(importedData.supplies);
+          if (importedData.supplyHistory) StorageService.saveSupplyHistory(importedData.supplyHistory);
+          if (importedData.dealers) StorageService.saveDealers(importedData.dealers);
+          if (importedData.crewMembers) StorageService.saveCrewMembers(importedData.crewMembers);
+          if (importedData.dealerTransactions) StorageService.saveDealerTransactions(importedData.dealerTransactions);
+          if (importedData.dailySales) StorageService.saveDailySales(importedData.dailySales);
           
           // Refresh page to load imported data
           window.location.reload();
@@ -179,7 +187,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
               onClick={handleResetGame}
               className={`${
                 showConfirmReset 
-                  ? 'bg-red-600 hover:bg-red-700' 
+                  ? 'bg-red-600 hover:bg-red-700 text-white' 
                   : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
               } py-2 px-4 rounded flex items-center w-full justify-center`}
             >
