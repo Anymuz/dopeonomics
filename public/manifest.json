@@ -1,6 +1,7 @@
 {
   "short_name": "Dopeonomics",
-  "name": "A full service calulator and empire tracker for your Schedule 1 journey",
+  "name": "Dopeonomics - Strain Creator",
+  "description": "Building empires, one strain at a time. An unofficial companion app for Schedule 1",
   "icons": [
     {
       "src": "favicon.ico",
