@@ -4,7 +4,7 @@
   "description": "Building empires, one strain at a time. An unofficial companion app for Schedule 1",
   "icons": [
     {
-      "src": "favicon.ico",
+      "src": "budicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
     },
