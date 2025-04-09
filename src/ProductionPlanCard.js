@@ -402,7 +402,7 @@ const ProductionPlanCard = ({
                     min="1"
                     value={plan.plannedQuantity}
                     onChange={(e) => {
-                      const newQuantity = Math.max(1, parseInt(e.target.value) || 0);
+                      const newQuantity = Math.max(0, parseInt(e.target.value) || 0);
                       // Recalculate expectedRevenue based on new quantity
                       const newExpectedRevenue = newQuantity * plan.salePrice;
                       onUpdatePlan(plan.id, { 

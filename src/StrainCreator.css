@@ -191,6 +191,21 @@
     margin-right: 0.5rem;
     margin-bottom: 0.5rem;
   }
+
+  /* Tooltip positioning for the top row of effects */
+.tooltip-bottom {
+  top: 100% !important; /* Position below the button */
+  bottom: auto !important;
+  margin-top: 8px !important; /* Add space between button and tooltip */
+  margin-bottom: 0 !important;
+}
+
+.tooltip-bottom .tooltip-arrow {
+  top: 0 !important;
+  bottom: auto !important;
+  transform: rotate(225deg) translate(0, 50%) !important;
+}
+
   
   /* Current mix display */
   .mix-display {

@@ -1,4 +1,4 @@
-                // EffectBuilderTab.js
+// EffectBuilderTab.js
 import React, { useState} from 'react';
 import {
   Beaker,
@@ -500,13 +500,13 @@ const EffectBuilderTab = ({
                       <X className="w-4 h-4 text-gray-600" />
                     </button>
                   </div>
-                  {/* Tooltip */}
-                  <div className="absolute z-10 invisible group-hover:visible bg-gray-900 text-white p-2 rounded-md shadow-lg w-48 text-xs bottom-full left-0 mb-2">
+                  {/* Tooltip - Always position below when in the selected effects area */}
+                  <div className="absolute z-10 invisible group-hover:visible bg-gray-900 text-white p-2 rounded-md shadow-lg w-48 text-xs top-full left-0 mt-2">
                     <div className="font-medium mb-1">{effect}</div>
                     <div className="text-gray-300 mb-1">Type: {effectDetails[effect]?.type}</div>
                     <div className="text-gray-300">Value: {(effectDetails[effect]?.multiplier * 100).toFixed(0)}%</div>
                     <div className="mt-1">{effectDetails[effect]?.description}</div>
-                    <div className="absolute w-2 h-2 bg-gray-900 transform rotate-45 bottom-0 left-4 translate-y-1"></div>
+                    <div className="absolute w-2 h-2 bg-gray-900 transform rotate-45 top-0 left-4 -translate-y-1"></div>
                   </div>
                 </div>
               ))}
@@ -517,38 +517,47 @@ const EffectBuilderTab = ({
         {/* Effects Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-72 overflow-y-auto p-2 border rounded-md">
           {filteredAndSortedEffects().length > 0 ? (
-            filteredAndSortedEffects().map((effect) => (
-              <div key={effect} className="relative group">
-                <button
-                  onClick={() => toggleEffect(effect)}
-                  className={`w-full p-2 rounded-md text-white text-sm transition-all ${
-                    selectedEffects.includes(effect) 
-                      ? 'opacity-100 ring-2 ring-white' 
-                      : 'opacity-80 hover:opacity-100'
-                  }`}
-                  style={{ backgroundColor: effectColors[effect] || '#333' }}
-                  disabled={selectedEffects.length >= 8 && !selectedEffects.includes(effect)}
-                >
-                  <div className="flex items-center justify-between">
-                    <span>{effect}</span>
-                    {selectedEffects.includes(effect) && (
-                      <Check className="ml-1 w-4 h-4" />
-                    )}
-                    <span className="ml-2 px-1 py-0.5 bg-white bg-opacity-20 rounded text-xs">
-                      {effectDetails[effect]?.type}
-                    </span>
+            filteredAndSortedEffects().map((effect, index) => {
+              // Determine if this is in the first row
+              const isInFirstFourRows = index < 16;
+      
+                return (
+                    <div key={effect} className="relative group">
+                    <button
+                        onClick={() => toggleEffect(effect)}
+                        className={`w-full p-2 rounded-md text-white text-sm transition-all ${
+                        selectedEffects.includes(effect) 
+                            ? 'opacity-100 ring-2 ring-white' 
+                            : 'opacity-80 hover:opacity-100'
+                        }`}
+                        style={{ backgroundColor: effectColors[effect] || '#333' }}
+                        disabled={selectedEffects.length >= 8 && !selectedEffects.includes(effect)}
+                    >
+                        <div className="flex items-center justify-between">
+                        <span>{effect}</span>
+                        {selectedEffects.includes(effect) && (
+                            <Check className="ml-1 w-4 h-4" />
+                        )}
+                        <span className="ml-2 px-1 py-0.5 bg-white bg-opacity-20 rounded text-xs">
+                            {effectDetails[effect]?.type}
+                        </span>
+                        </div>
+                    </button>
+                    {/* Tooltip - Position below for first 4 rows, above for others */}
+                    <div className={`absolute z-10 invisible group-hover:visible bg-gray-900 text-white p-2 rounded-md shadow-lg w-48 text-xs ${
+                        isInFirstFourRows ? 'top-full mt-2' : 'bottom-full mb-2'
+                    } left-1/2 transform -translate-x-1/2`}>
+                        <div className="font-medium mb-1">{effect}</div>
+                        <div className="text-gray-300 mb-1">Type: {effectDetails[effect]?.type}</div>
+                        <div className="text-gray-300">Value: {(effectDetails[effect]?.multiplier * 100).toFixed(0)}%</div>
+                        <div className="mt-1">{effectDetails[effect]?.description}</div>
+                        <div className={`absolute w-2 h-2 bg-gray-900 transform rotate-45 ${
+                        isInFirstFourRows ? 'top-0 -translate-y-1' : 'bottom-0 translate-y-1'
+                        } left-1/2 -translate-x-1/2`}></div>
                   </div>
-                </button>
-                {/* Tooltip */}
-                <div className="absolute z-10 invisible group-hover:visible bg-gray-900 text-white p-2 rounded-md shadow-lg w-48 text-xs bottom-full left-1/2 transform -translate-x-1/2 mb-2">
-                  <div className="font-medium mb-1">{effect}</div>
-                  <div className="text-gray-300 mb-1">Type: {effectDetails[effect]?.type}</div>
-                  <div className="text-gray-300">Value: {(effectDetails[effect]?.multiplier * 100).toFixed(0)}%</div>
-                  <div className="mt-1">{effectDetails[effect]?.description}</div>
-                  <div className="absolute w-2 h-2 bg-gray-900 transform rotate-45 bottom-0 left-1/2 -translate-x-1/2 translate-y-1"></div>
                 </div>
-              </div>
-            ))
+              );
+            })
           ) : (
             <div className="col-span-full text-center p-4 text-gray-500">
               No effects match your search
