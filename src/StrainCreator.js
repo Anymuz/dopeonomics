@@ -6,16 +6,16 @@ import {
   Heart,
   Users,
   Package,
+  Beaker,
   BarChart2
 } from 'lucide-react';
 
-// Import existing components
+// Import  components
 import StorageService from './StorageService';
 import AutoSave from './AutoSave';
 import DopeyHeader from './DopeyHeader';
 import CombinedStrainsTab from './CombinedStrainsTab';
-
-// Import components
+import EffectBuilderTab from './EffectBuilderTab';
 import ProductionPlanningTab from './ProductionPlanningTab';
 import { SeedSelector } from './IngredientComponents';
 import { CurrentMixDisplay } from './MixDisplayComponents';
@@ -753,6 +753,17 @@ const StrainCreator = () => {
         </button>
         <button
           className={`py-2 px-4 font-medium text-sm ${
+            activeTab === 'effects'
+              ? 'text-purple-600 border-b-2 border-purple-600'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+          onClick={() => handleTabChange('effects')}
+        >
+          <Beaker className="inline-block mr-1 w-4 h-4" />
+          Effect Builder
+        </button>
+        <button
+          className={`py-2 px-4 font-medium text-sm ${
             activeTab === 'saved'
               ? 'text-green-600 border-b-2 border-green-600'
               : 'text-gray-500 hover:text-gray-700'
@@ -895,6 +906,15 @@ const StrainCreator = () => {
             Save Creation
           </button>
         </div>
+
+      ) : activeTab === 'effects' ? (
+        <EffectBuilderTab
+          seedTypes={seedTypes}
+          ingredients={ingredients}
+          effectColors={effectColors}
+          drugTypes={drugTypes}
+          calculateStrainEffects={calculateStrainEffects}
+        />
       ) : activeTab === 'saved' ? (
         <CombinedStrainsTab
           mixes={filteredAndSortedMixes}
