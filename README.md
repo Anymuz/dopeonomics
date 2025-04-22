@@ -1,6 +1,6 @@
 # Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+The foundation used for project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app) originally by [Fustashon](https://github.com/fustahson) who wrote this README file for clone and use.
 
 ## Available Scripts
 
