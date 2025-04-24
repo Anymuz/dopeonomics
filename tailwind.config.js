@@ -1,7 +1,11 @@
+import forms from '@tailwindcss/forms';
+//import defaultTheme from 'tailwindcss/defaultTheme';
+
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   content: [
-    "./src/**/*.{js,jsx,ts,tsx}",
+    "./index.html",
+    "./src/**/*.{js,jsx}",
   ],
   theme: {
     extend: {
@@ -41,17 +45,16 @@ module.exports = {
         'toxic': '#3d6523',
         'tropic-thunder': '#8c592b',
         'zombifying': '#558248',
+        // gradientColourStops
+        'green-gradient-start': '#48bb78',
+        'green-gradient-end': '#38a169',
+        'blue-gradient-start': '#4299e1',
+        'blue-gradient-end': '#3182ce',
       },
       boxShadow: {
         'card': '0 4px 6px rgba(0, 0, 0, 0.1)',
         'btn': '0 1px 3px rgba(0, 0, 0, 0.1)',
         'selected': '0 4px 6px rgba(0, 0, 0, 0.05)',
-      },
-      gradientColorStops: {
-        'green-gradient-start': '#48bb78',
-        'green-gradient-end': '#38a169',
-        'blue-gradient-start': '#4299e1',
-        'blue-gradient-end': '#3182ce',
       },
       borderRadius: {
         'xl': '0.75rem',
@@ -66,7 +69,5 @@ module.exports = {
       },
     },
   },
-  plugins: [
-    require('@tailwindcss/forms'),
-  ],
-}
+  plugins: [forms],
+};
