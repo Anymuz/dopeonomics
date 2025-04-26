@@ -52,7 +52,7 @@ For those who wish to contribute, please first [read and understand the full wik
 
 When making contributions please stick to the following workflow to keep things well tracked and organised and prevent conflicts in the program code:
 
-- Branch from `main` for each new feature, fix, or task.
+- Branch from `iteration/{number}-{short-description}-main` using the current ongoing iteration for each new feature, fix, or task.
 - Use the naming convention:  
   `iteration/{number}-{short-description}/{feature-name}`
 
@@ -61,7 +61,7 @@ When making contributions please stick to the following workflow to keep things 
   - `iteration/1-core-infrastructure/refactor-supply-tab`
 
 - Push your branch to GitHub.
-- Open a Pull Request (PR) into `main`.
+- Open a Pull Request (PR) into `iteration/{number}-{short-description}-main`.
 - Self-review your PR and link it to related issues.
 - Merge after approval.
 
