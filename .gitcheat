@@ -3,12 +3,12 @@
 # Branching Strategy
 
 ## Create new iteration branch
-git checkout -b iteration-1-core-infrastructure
+git checkout -b iteration/1-core-infrastructure
 
-## Create feature branch under iteration
-git checkout -b feature/iteration-1-refactor-supply-tab
+## Create each project task branch under iteration
+git checkout -b /iteration/1-core-infrastructure/refactor-supply-tab
 
-## Create bugfix or hotfix
+## Create bugfix or hotfix from outside the project plan
 git checkout -b bugfix/fix-plan-card-expansion
 git checkout -b hotfix/reset-clears-keys
 
@@ -19,9 +19,12 @@ git push -u origin <branch-name>
 
 ## Merge feature into iteration
 git checkout iteration-1-core-infrastructure
-git merge feature/iteration-1-refactor-supply-tab
+git merge feature/iteration-1-core-infrastructure/refactor-supply-tab
 
-## Merge iteration into main
+## Create PR from current branch
+gh pr create --base <target-branch> --fill
+
+## Merge iteration into main (Use PR instead)
 git checkout main
 git merge iteration-1-core-infrastructure
 
@@ -31,13 +34,10 @@ git merge iteration-1-core-infrastructure
 git branch -d <branch-name>
 git push origin --delete <branch-name>
 
-# 🛠GitHub CLI (if available)
+# GitHub CLI (if available)
 
 ## Authenticate (once)
 gh auth login
-
-## Create PR from current branch
-gh pr create --base <target-branch> --fill
 
 # Before PR
 

@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Setup]
+## Setup
 
 ### Added
 - Project iteration roadmap defined in [3-Development-Roadmap](https://github.com/Anymuz/dopeonomics/wiki/3-Development-Roadmap)
@@ -17,6 +17,25 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-## [Iteration 1] - Core Infrastructure + Critical Bugs
+## Iteration 1: Core Infrastructure + Critical Bugs
 
-_To be updated when iteration completes._
+### - Vite Rebuild
+- Migrated build system from Create React App (CRA) to Vite
+- Installed and configured Tailwind CSS + PostCSS
+- Cleaned project structure and removed CRA legacy
+- Updated project scripts for Vite
+- Preserved original Dopeonomics core styles
+
+### - Refactor SupplyManagementTab
+- (to be filled once complete)
+
+### - Convert productionPlans to use GameStore
+- (to be filled once complete)
+
+---
+
+## Iteration 2: Base Planning Setup
+
+_(no tasks completed yet)_
+
+---
