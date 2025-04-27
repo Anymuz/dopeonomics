@@ -6,9 +6,10 @@ import {
 } from 'lucide-react';
 
 // Import our enhanced card component
-import ProductionPlanCard from './ProductionPlanCard.jsx'; 
+import ProductionPlanCard from './ProductionPlanCard.jsx';
 
 // Production Planning Tab Component
+/* eslint-disable no-unused-vars */
 const ProductionPlanningTab = ({ 
   strains, 
   productionPlans, 

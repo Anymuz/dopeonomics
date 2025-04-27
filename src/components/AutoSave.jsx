@@ -1,3 +1,4 @@
+import useGameStore from '../stores/GameStore.jsx';
 // AutoSave.js
 // Component that provides automatic saving of game state without UI elements
 import { useEffect, useCallback } from 'react';

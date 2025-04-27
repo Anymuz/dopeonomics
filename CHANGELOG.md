@@ -27,10 +27,11 @@ All notable changes to this project will be documented in this file.
 - Preserved original Dopeonomics core styles
 
 ### - Refactor SupplyManagementTab
-- (to be filled once complete)
+- Installed Zustand library dependency
+- Began intergration of GameStore with all components
 
 ### - Convert productionPlans to use GameStore
-- (to be filled once complete)
+- GameStore added and is being tested and implemented
 
 ---
 

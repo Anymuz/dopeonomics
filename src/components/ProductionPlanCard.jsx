@@ -139,7 +139,7 @@ const ProductionPlanCard = ({
   // Calculate progress percentage for the progress bar
   const calculateProgress = () => {
     if (plan.status === 'sold') return 100;
-    
+    /* eslint-disable no-case-declarations */
     switch (currentStage) {
       case 'plan':
         return 0;

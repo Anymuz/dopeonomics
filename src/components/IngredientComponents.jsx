@@ -1,3 +1,4 @@
+import useGameStore from '../stores/GameStore.jsx';
 import React from 'react';
 
 // Updated SeedSelector component that only shows seeds for the selected drug type

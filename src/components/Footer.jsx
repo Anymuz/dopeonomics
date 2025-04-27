@@ -1,3 +1,4 @@
+import useGameStore from '../stores/GameStore.jsx';
 // Footer.js
 import React from 'react';
 import { Info, Heart} from 'lucide-react';

@@ -146,12 +146,19 @@ const SalesHistoryTab = ({ salesHistory, reproduceProductionPlan, drugTypes }) =
   const dailySalesData = getDailySalesData();
   
   // Calculate total statistics
-  const totalStats = filteredSalesHistory.reduce((stats, sale) => {
-    stats.revenue += sale.totalRevenue;
-    stats.profit += sale.profit;
-    stats.quantitySold += sale.quantitySold;
-    return stats;
-  }, { revenue: 0, profit: 0, quantitySold: 0 });
+  var totalStats = {
+    revenue: 0, 
+    profit: 0, 
+    quantitySold: 0
+  }
+  if (filteredSalesHistory){
+    totalStats = filteredSalesHistory.reduce((stats, sale) => {
+      stats.revenue += sale.totalRevenue;
+      stats.profit += sale.profit;
+      stats.quantitySold += sale.quantitySold;
+      return stats;
+    }, { revenue: 0, profit: 0, quantitySold: 0 });
+  };
 
   // Handle reproduce from sales history
   const handleReproduceFromSale = (sale) => {
@@ -244,15 +251,7 @@ const SalesHistoryTab = ({ salesHistory, reproduceProductionPlan, drugTypes }) =
         Sales History
       </h2>
 
-      {salesHistory.length === 0 ? (
-        <div className="text-center p-8 bg-gray-50 rounded-lg border border-gray-200">
-          <BarChart className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900">No sales history</h3>
-          <p className="mt-1 text-sm text-gray-500">
-            Mark production plans as sold to track your sales.
-          </p>
-        </div>
-      ) : (
+      {salesHistory ? (
         <div className="space-y-6">
           {/* Filter Controls */}
           <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-3">
@@ -434,7 +433,15 @@ const SalesHistoryTab = ({ salesHistory, reproduceProductionPlan, drugTypes }) =
             </div>
           </div>
         </div>
-      )}
+       ) : (       
+          <div className="text-center p-8 bg-gray-50 rounded-lg border border-gray-200">
+          <BarChart className="mx-auto h-12 w-12 text-gray-400" />
+          <h3 className="mt-2 text-sm font-medium text-gray-900">No sales history</h3>
+          <p className="mt-1 text-sm text-gray-500">
+            Mark production plans as sold to track your sales.
+          </p>
+        </div>
+        )}
 
       {/* Quantity Modal for Sales History Reproduction */}
       {saleToReproduce && (

@@ -285,6 +285,7 @@ const PersonalSalesForm = ({ addPersonalSale }) => {
 };
 
 // Crew Management Component
+/* eslint-disable no-unused-vars */
 const CrewManagementTab = ({ 
   dealers: existingDealers,
   setDealers,
@@ -357,15 +358,17 @@ const CrewManagementTab = ({
     });
     
     // Process personal sales
-    dailySales.forEach(sale => {
-      const date = new Date(sale.date).toLocaleDateString();
-      if (!byDate[date]) {
-        byDate[date] = { date, revenue: 0, expenses: calculateDailyCost(), profit: 0 };
-      }
-      byDate[date].revenue += sale.amount;
-      byDate[date].expenses += sale.expenses;
-      byDate[date].profit = byDate[date].revenue - byDate[date].expenses;
-    });
+    if (dailySales) {
+      dailySales.forEach(sale => {
+        const date = new Date(sale.date).toLocaleDateString();
+        if (!byDate[date]) {
+          byDate[date] = { date, revenue: 0, expenses: calculateDailyCost(), profit: 0 };
+        }
+        byDate[date].revenue += sale.amount;
+        byDate[date].expenses += sale.expenses;
+        byDate[date].profit = byDate[date].revenue - byDate[date].expenses;
+      });
+    }
     
     // Convert to array and sort by date
     return Object.values(byDate).sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -373,6 +376,8 @@ const CrewManagementTab = ({
 
   // Calculate overall efficiency score (0-100) - higher is better
   const calculateEfficiencyScore = () => {
+    if(!dailySales) return 0;
+
     if (dealerTransactions.length === 0 && dailySales.length === 0) return 0;
     
     const totalRevenue = [...dealerTransactions, ...dailySales].reduce((sum, tx) => 
@@ -504,7 +509,7 @@ const CrewManagementTab = ({
           <div className="bg-white p-4 rounded-lg border border-gray-200">
             <h3 className="text-lg font-medium text-gray-800 mb-4">Business Performance Over Time</h3>
             
-            {getEfficiencyData().length > 0 ? (
+            {getEfficiencyData() ? (
               <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart
@@ -665,7 +670,7 @@ const CrewManagementTab = ({
     <div className="bg-white p-4 rounded-lg border border-gray-200">
       <h3 className="text-lg font-medium text-gray-800 mb-4">Recent Dealer Transactions</h3>
       
-      {dealerTransactions.length > 0 ? (
+      {dealerTransactions ? (
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -721,7 +726,7 @@ const CrewManagementTab = ({
     <div className="bg-white p-4 rounded-lg border border-gray-200">
       <h3 className="text-lg font-medium text-gray-800 mb-4">Personal Sales History</h3>
       
-      {dailySales.length > 0 ? (
+      {dailySales ? (
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -793,10 +798,10 @@ const CrewManagementTab = ({
         <div className="bg-green-50 p-3 rounded-lg border border-green-100">
           <h4 className="text-sm font-medium text-green-800 mb-1">Personal Sales</h4>
           <p className="text-xl font-bold text-green-700">
-            ${dailySales.reduce((sum, sale) => sum + sale.amount, 0).toFixed(2)}
+            ${ dailySales ? (dailySales.reduce((sum, sale) => sum + sale.amount, 0).toFixed(2)): 0 }
           </p>
           <p className="text-xs text-green-500">
-            {dailySales.length} sales
+            {dailySales ? dailySales.length : 0 } sales
           </p>
         </div>
         
@@ -804,7 +809,9 @@ const CrewManagementTab = ({
         <div className="bg-purple-50 p-3 rounded-lg border border-purple-100">
           <h4 className="text-sm font-medium text-purple-800 mb-1">Total Profit</h4>
           <p className="text-xl font-bold text-purple-700">
-            ${(dealerTransactions.reduce((sum, tx) => sum + tx.profit, 0) + dailySales.reduce((sum, sale) => sum + sale.profit, 0)).toFixed(2)}
+            ${( dealerTransactions ? (dealerTransactions.reduce((sum, tx) => sum + tx.profit, 0)) : 0 
+              + 
+              dailySales ? (dailySales.reduce((sum, sale) => sum + sale.profit, 0)) : 0).toFixed(2)}
           </p>
         </div>
       </div>

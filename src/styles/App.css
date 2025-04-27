@@ -3,10 +3,10 @@
  /* You might add styles here that are SPECIFIC to the App component's layout, */
  /* but with Tailwind, this is often handled with classes directly in App.js */
  
- .app-container {
+ /*.app-container {
   /* Example: If you had a specific layout need for the main app container */
   /* display: flex; */
   /* justify-content: center; */
   /* align-items: center; */
   /* height: 100vh; */
- }
+/* }

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { PlusCircle, CornerDownRight, Check, RotateCcw, Trash2, XCircle, AlertTriangle } from 'lucide-react';
 
 // Sequential Ingredients Selector - allows adding one ingredient at a time and shows effects after each step
+/* eslint-disable no-unused-vars */
 export const SequentialIngredientsSelector = ({ 
   ingredients, 
   currentMix, 

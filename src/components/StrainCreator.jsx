@@ -1,5 +1,7 @@
-import '../styles/StrainCreator.css'
+// File: src/components/StrainCreator.jsx
+import '../styles/StrainCreator.css';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import useGameStore from '../stores/GameStore.jsx';
 import {
   CheckCircle,
   FlaskConical,
@@ -11,35 +13,33 @@ import {
   BarChart2
 } from 'lucide-react';
 
-// Import  components
-import StorageService from '../utils/StorageService.jsx';
+// Components
 import AutoSave from './AutoSave.jsx';
 import DopeyHeader from './DopeyHeader.jsx';
 import CombinedStrainsTab from './CombinedStrainsTab.jsx';
 import EffectBuilderTab from './EffectBuilderTab.jsx';
 import ProductionPlanningTab from './ProductionPlanningTab.jsx';
-import { SeedSelector } from './IngredientComponents.jsx';
-import { CurrentMixDisplay } from './MixDisplayComponents.jsx';
-import { SequentialIngredientsSelector } from './SequentialIngredientsSelector.jsx';
-import { PackagingSelector, PriceMarginInputs} from './PackagingComponents.jsx';
-import { ProfitInfoDisplay } from './ProfitComponents.jsx';
-import { DrugTypeSelector } from './DrugTypeSelector.jsx';
-import { NamePromptModal } from './NamePromptModal.jsx';
 import SalesHistoryTab from './SalesHistoryTab.jsx';
 import CrewManagementTab from './CrewManagementTab.jsx';
 import SupplyManagementTab from './SupplyManagementTab.jsx';
+import { SeedSelector } from './IngredientComponents.jsx';
+import { CurrentMixDisplay } from './MixDisplayComponents.jsx';
+import { SequentialIngredientsSelector } from './SequentialIngredientsSelector.jsx';
+import { PackagingSelector, PriceMarginInputs } from './PackagingComponents.jsx';
+import { ProfitInfoDisplay } from './ProfitComponents.jsx';
+import { DrugTypeSelector } from './DrugTypeSelector.jsx';
+import { NamePromptModal } from './NamePromptModal.jsx';
 
-// Import data
-import { 
-  seedTypes, 
-  ingredients, 
-  additiveEffects, 
+// Data & pricing
+import {
+  seedTypes,
+  ingredients,
+  additiveEffects,
   effectColors,
   drugTypes,
   calculateStrainEffects
 } from '../data/straindata.jsx';
-
-// Import pricing functions
+/* eslint-disable no-unused-vars */
 import {
   calculateRecommendedPrice,
   calculateTotalUnits,
@@ -49,394 +49,249 @@ import {
   calculateTotalBatchProfit,
   calculatePackagingProfit,
   calculateSalePriceFromMargin,
-  calculateProductionPlan,
+  calculateProductionPlan
 } from '../data/pricing.jsx';
 
 const StrainCreator = () => {
-  // State for strain creation
-  const [selectedSeed, setSelectedSeed] = useState(StorageService.loadSelectedSeed());
-  const [selectedDrugType, setSelectedDrugType] = useState(StorageService.loadSelectedDrugType());
-  const [currentMix, setCurrentMix] = useState(StorageService.loadCurrentMix() || []);
+  // Pull everything from global store
+  const {
+    settings,
+    settings:{
+        selectedSeed,
+        selectedDrugType,
+        currentMix,
+        priceSettings: { salePrice, targetMargin, priceMultiplier, packagingType },
+        sortSettings: { column: sortColumn, direction: sortDirection },
+        filterOptions,
+        activeTab
+      },
+    addProductionPlan,
+    updateProductionPlan,
+    removeProductionPlan,
+    mixes,
+    productionPlans,
+    salesHistory,
+    addDailySale,
+    dealers,
+    crewMembers,
+    dealerTransactions,
+    supplies,
+    supplyHistory,
+    updateSettings,
+    setMixes,
+    setProductionPlans,
+    setSalesHistory,
+    setDealers,
+    setCrewMembers,
+    setDealerTransactions,
+    setSupplies,
+    setSupplyHistory,
+    resetGame
+  } = useGameStore();
+
+  // local Price state (prevent endless loop)
+  const {
+    salePrice: savedSalePrice,
+    targetMargin: savedTargetMargin,
+    priceMultiplier: savedMultiplier,
+    packagingType: savedPackagingType
+  } = settings.priceSettings;
+
+  // local copies
+  const [localSalePrice, setLocalSalePrice] = useState(savedSalePrice);
+  const [localTargetMargin, setLocalTargetMargin] = useState(savedTargetMargin);
+  const [localMultiplier, setLocalMultiplier] = useState(savedMultiplier);
+  const [localPackagingType, setLocalPackagingType] = useState(savedPackagingType);
+
+  // local UI state
   const [currentEffects, setCurrentEffects] = useState([]);
   const [mixingHistory, setMixingHistory] = useState([]);
-  const [mixes, setMixes] = useState(StorageService.loadMixes() || []);
-  
-  // Pricing and display states
-  const priceSettings = StorageService.loadPriceSettings() || {
-    salePrice: 0,
-    targetMargin: '',
-    priceMultiplier: 1,
-    packagingType: 'baggies'
-  };
-  const [salePrice, setSalePrice] = useState(priceSettings.salePrice);
-  const [targetMargin, setTargetMargin] = useState(priceSettings.targetMargin);
-  const [priceMultiplier, setPriceMultiplier] = useState(priceSettings.priceMultiplier);
-  const [packagingType, setPackagingType] = useState(priceSettings.packagingType);
-  
-  // UI states
-  const [activeTab, setActiveTab] = useState(StorageService.loadActiveTab() || 'creator');
   const [showNamePrompt, setShowNamePrompt] = useState(false);
-  
-  // Supply management states
-  const [supplies, setSupplies] = useState(StorageService.loadSupplies() || {
-    seeds: {},
-    ingredients: {},
-    packaging: { baggies: 0, jars: 0 }
-  });
-  const [supplyHistory, setSupplyHistory] = useState(StorageService.loadSupplyHistory() || []);
-  
-  // Sort and filter states
-  const sortSettings = StorageService.loadSortSettings() || { column: 'name', direction: 'asc' };
-  const [sortColumn, setSortColumn] = useState(sortSettings.column);
-  const [sortDirection, setSortDirection] = useState(sortSettings.direction);
-  const [filterOptions, setFilterOptions] = useState(StorageService.loadFilterOptions() || {
-    name: '',
-    seedType: '',
-    drugType: '',
-    effect: ''
-  });
-  
-  // Production and sales states
-  const [productionPlans, setProductionPlans] = useState(StorageService.loadProductionPlans() || []);
-  const [salesHistory, setSalesHistory] = useState(StorageService.loadSalesHistory() || []);
 
-  // Crew management states
-  const [dealers, setDealers] = useState(StorageService.loadDealers() || []);
-  const [crewMembers, setCrewMembers] = useState(StorageService.loadCrewMembers() || {
-    botanist: 0,
-    cleaner: 0,
-    handler: 0,
-    chemist: 0
-  });
-  const [dealerTransactions, setDealerTransactions] = useState(StorageService.loadDealerTransactions() || []);
-  const [dailySales, setDailySales] = useState(StorageService.loadDailySales() || []);
-
-  // Reset everything when drug type changes
+  // effect: reset mix when seed or drugType changes
   useEffect(() => {
-    setSelectedSeed(null);
-    setCurrentMix([]);
-    setCurrentEffects([]);
-    setMixingHistory([]);
-    StorageService.saveSelectedDrugType(selectedDrugType);
-  }, [selectedDrugType]);
-
-  // Update effects when seed changes
-  useEffect(() => {
-    if (selectedSeed) {
-      // Reset mix when seed changesF
-      setCurrentMix([]);
-      
-      const seedEffect = selectedSeed.effect;
-      setCurrentEffects([seedEffect]);
-      
-      // Initialize mixing history with just the seed
-      setMixingHistory([{
-        step: 0,
-        ingredient: "Base Seed",
-        effectsBefore: [],
-        effectsAfter: [seedEffect],
-        changes: [`Added ${seedEffect}`]
-      }]);
-      
-      StorageService.saveSelectedSeed(selectedSeed);
-      
-      // Update recommended price based on the seed's effect
-      const recommendedPrice = calculateRecommendedPrice([seedEffect], selectedDrugType);
-      setSalePrice(recommendedPrice);
-    } else {
-      setCurrentEffects([]);
-      setMixingHistory([]);
-    }
-  }, [selectedSeed, selectedDrugType]);
-
-  // Sequential ingredient addition method
-  const addIngredient = (ingredient) => {
-    // Add ingredient to the current mix
-    const updatedMix = [...currentMix, ingredient];
-    setCurrentMix(updatedMix);
-    
-    // Recalculate effects using the sequential approach
-    if (selectedSeed) {
-      const result = calculateStrainEffects(
-        selectedSeed.effect, 
-        updatedMix
-      );
-      
-      setCurrentEffects(result.finalEffects);
-      setMixingHistory(result.mixingHistory);
-      
-      // Update recommended price
-      const recommendedPrice = calculateRecommendedPrice(result.finalEffects, selectedDrugType);
-      setSalePrice(recommendedPrice);
-      
-      // Save to storage
-      StorageService.saveCurrentMix(updatedMix);
-    }
-  };
-  
-  // Method to remove the last ingredient added
-  const removeLastIngredient = () => {
-    if (currentMix.length === 0) return;
-    
-    const updatedMix = currentMix.slice(0, currentMix.length - 1);
-    setCurrentMix(updatedMix);
-    
-    // Recalculate effects using the sequential approach
-    if (selectedSeed) {
-      const result = calculateStrainEffects(
-        selectedSeed.effect, 
-        updatedMix
-      );
-      
-      setCurrentEffects(result.finalEffects);
-      setMixingHistory(result.mixingHistory);
-      
-      // Update recommended price
-      const recommendedPrice = calculateRecommendedPrice(result.finalEffects, selectedDrugType);
-      setSalePrice(recommendedPrice);
-      
-      // Save to storage
-      StorageService.saveCurrentMix(updatedMix);
-    }
-  };
-  
-  // Method to reset the mix completely
-  const resetMix = () => {
-    setCurrentMix([]);
-    
+    updateSettings('currentMix', []);
     if (selectedSeed) {
       setCurrentEffects([selectedSeed.effect]);
-      setMixingHistory([{
-        step: 0,
-        ingredient: "Base Seed",
-        effectsBefore: [],
-        effectsAfter: [selectedSeed.effect],
-        changes: [`Added ${selectedSeed.effect}`]
-      }]);
-      
-      // Update recommended price
-      const recommendedPrice = calculateRecommendedPrice([selectedSeed.effect], selectedDrugType);
-      setSalePrice(recommendedPrice);
-      
-      // Save to storage
-      StorageService.saveCurrentMix([]);
+      setMixingHistory([
+        {
+          step: 0,
+          ingredient: 'Base Seed',
+          effectsBefore: [],
+          effectsAfter: [selectedSeed.effect],
+          changes: [`Added ${selectedSeed.effect}`]
+        }
+      ]);
+      const rec = calculateRecommendedPrice([selectedSeed.effect], selectedDrugType);
+      updateSettings('priceSettings', { ...{ salePrice, targetMargin, priceMultiplier, packagingType }, salePrice: rec });
     } else {
       setCurrentEffects([]);
       setMixingHistory([]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedSeed, selectedDrugType, updateSettings]);
+
+  // ingredient management
+  const addIngredient = ingredient => {
+    const updated = [...currentMix, ingredient];
+    updateSettings('currentMix', updated);
+    if (selectedSeed) {
+      const result = calculateStrainEffects(selectedSeed.effect, updated);
+      setCurrentEffects(result.finalEffects);
+      setMixingHistory(result.mixingHistory);
+      const rec = calculateRecommendedPrice(result.finalEffects, selectedDrugType);
+      updateSettings('priceSettings', { ...{ salePrice, targetMargin, priceMultiplier, packagingType }, salePrice: rec });
+    }
   };
-  
-  // Method to finalize the mix and proceed to pricing/saving
+
+  const removeLastIngredient = () => {
+    const updated = currentMix.slice(0, -1);
+    updateSettings('currentMix', updated);
+    if (selectedSeed) {
+      const result = calculateStrainEffects(selectedSeed.effect, updated);
+      setCurrentEffects(result.finalEffects);
+      setMixingHistory(result.mixingHistory);
+      const rec = calculateRecommendedPrice(result.finalEffects, selectedDrugType);
+      updateSettings('priceSettings', { ...{ salePrice, targetMargin, priceMultiplier, packagingType }, salePrice: rec });
+    }
+  };
+
+  const resetMix = () => {
+    updateSettings('currentMix', []);
+    if (selectedSeed) {
+      setCurrentEffects([selectedSeed.effect]);
+      setMixingHistory([
+        {
+          step: 0,
+          ingredient: 'Base Seed',
+          effectsBefore: [],
+          effectsAfter: [selectedSeed.effect],
+          changes: [`Added ${selectedSeed.effect}`]
+        }
+      ]);
+      const rec = calculateRecommendedPrice([selectedSeed.effect], selectedDrugType);
+      updateSettings('priceSettings', { ...{ salePrice, targetMargin, priceMultiplier, packagingType }, salePrice: rec });
+    }
+  };
   const finalizeMix = () => {
-    if (currentMix.length > 0 && selectedSeed) {
-      // Activate the save prompt
+    if (selectedSeed && currentMix.length) {
       setShowNamePrompt(true);
     }
   };
 
-  // Local wrapper functions for pricing calculations
-  const getTotalCost = useCallback(() => {
-    return calculateTotalCost(selectedSeed, currentMix);
-  }, [selectedSeed, currentMix]);
-  
-  const getProfit = useCallback(() => {
-    return calculateProfit(salePrice, selectedSeed, currentMix);
-  }, [salePrice, selectedSeed, currentMix]);
-  
-  const getProfitMargin = useCallback(() => {
-    return calculateProfitMargin(salePrice, selectedSeed, currentMix);
-  }, [salePrice, selectedSeed, currentMix]);
-  
-  const getTotalBatchProfit = useCallback(() => {
-    return calculateTotalBatchProfit(salePrice, selectedSeed, currentMix, priceMultiplier);
-  }, [salePrice, selectedSeed, currentMix, priceMultiplier]);
-  
-  const getPackagingProfit = useCallback(() => {
-    return calculatePackagingProfit(salePrice, selectedSeed, currentMix, packagingType);
-  }, [salePrice, selectedSeed, currentMix, packagingType]);
-  
-  const getTotalUnits = useCallback(() => {
-    return calculateTotalUnits(selectedSeed);
-  }, [selectedSeed]);
+  // pricing calculations
+  const getTotalCost = useCallback(() => calculateTotalCost(selectedSeed, currentMix), [selectedSeed, currentMix]);
+  const getProfit = useCallback(() => calculateProfit(salePrice, selectedSeed, currentMix), [salePrice, selectedSeed, currentMix]);
+  const getProfitMargin = useCallback(() => calculateProfitMargin(salePrice, selectedSeed, currentMix), [salePrice, selectedSeed, currentMix]);
+  const getTotalBatchProfit = useCallback(() => calculateTotalBatchProfit(salePrice, selectedSeed, currentMix, priceMultiplier), [salePrice, selectedSeed, currentMix, priceMultiplier]);
+  const getPackagingProfit = useCallback(() => calculatePackagingProfit(salePrice, selectedSeed, currentMix, packagingType), [salePrice, selectedSeed, currentMix, packagingType]);
+  const getTotalUnits = useCallback(() => calculateTotalUnits(selectedSeed), [selectedSeed]);
 
-  // Price/margin calculation handlers
-  const handleCalculateSalePriceFromMargin = () => {
+  const handleSalePriceFromMargin = () => {
     if (targetMargin && getTotalCost() > 0) {
-      const calculatedPrice = calculateSalePriceFromMargin(targetMargin, selectedSeed, currentMix);
-      setSalePrice(calculatedPrice);
+      const p = calculateSalePriceFromMargin(targetMargin, selectedSeed, currentMix);
+      updateSettings('priceSettings', { ...{ salePrice, targetMargin, priceMultiplier, packagingType }, salePrice: p });
     }
   };
 
-  const handleCalculateMarginFromSalePrice = () => {
+  const handleMarginFromSalePrice = () => {
     if (salePrice > 0 && getTotalCost() > 0) {
-      const margin = ((salePrice - getTotalCost()) / salePrice) * 100;
-      setTargetMargin(isNaN(margin) ? '' : margin.toFixed(2));
+      const m = ((salePrice - getTotalCost()) / salePrice) * 100;
+      updateSettings('priceSettings', { ...{ salePrice, targetMargin, priceMultiplier, packagingType }, targetMargin: m.toFixed(2) });
     }
   };
 
-  // Save mix function
-  const saveMix = (name) => {
+  // save mix
+  const saveMix = name => {
     if (!name.trim()) return;
-
-    const newMix = {
+    const nm = name.trim();
+    const mixObj = {
       id: Date.now(),
-      name: name.trim(),
+      name: nm,
       seed: selectedSeed,
       drugType: selectedDrugType,
       totalUnits: getTotalUnits(),
       ingredients: [...currentMix],
       effects: [...currentEffects],
-      mixingSequence: [...currentMix].map(ing => ing.name), // Store the exact sequence
-      salePrice: Math.round(parseFloat(salePrice)),
+      mixingSequence: currentMix.map(i => i.name),
+      salePrice: Math.round(salePrice),
       totalCost: getTotalCost(),
       profit: getProfit(),
       profitMargin: getProfitMargin(),
-      priceMultiplier: priceMultiplier,
-      packagingType: packagingType,
+      priceMultiplier,
+      packagingType,
       favorite: false,
       dateCreated: new Date().toISOString()
     };
-
-    setMixes(prev => [...prev, newMix]);
+    setMixes([...mixes, mixObj]);
     resetMix();
-    setSelectedSeed(null);
-    setSalePrice(0);
-  };
-
-  // Mix management functions
-  const removeMix = (id) => {
-    setMixes(prev => prev.filter(mix => mix.id !== id));
-  };
-  
-  // Toggle favorite status
-  const toggleFavorite = (id) => {
-    setMixes(prev => prev.map(mix => 
-      mix.id === id ? { ...mix, favorite: !mix.favorite } : mix
-    ));
-  };
-  
-  // Production planning functions
-  const addToProduction = (strainId) => {
-    const strain = mixes.find(mix => mix.id === strainId);
-    if (!strain) return;
-    
-    // Default to production based on drug type yield
-    const defaultQuantity = calculateTotalUnits(strain.seed);
-    
-    // Create a production plan with properly calculated ingredient quantities
-    const productionPlan = createEnhancedProductionPlan(strain, defaultQuantity);
-    
-    setProductionPlans(prev => [...prev, productionPlan]);
-    // Switch to production tab
-    setActiveTab('production');
-  };
-  
-  // Calculate packaging needs for a given quantity
-  const calculatePackagingNeeds = (quantity, type) => {
-    if (type === 'baggies') {
-      return {
-        type: 'baggies',
-        quantity: quantity,
-        cost: quantity
-      };
-    } else {
-      const jarsNeeded = Math.ceil(quantity / 5);
-      return {
-        type: 'jars',
-        quantity: jarsNeeded,
-        cost: jarsNeeded * 3
-      };
-    }
+    updateSettings('selectedSeed', null);
+    updateSettings('priceSettings', { ...{ salePrice, targetMargin, priceMultiplier, packagingType }, salePrice: 0 });
   };
   
   // Enhanced production plan creation with proper ingredient calculations
   const createEnhancedProductionPlan = (strain, quantity) => {
-    // First, count how many times each ingredient appears in the mix sequence
+    // Count how many times each ingredient appears in the mix sequence
     const ingredientCounts = {};
-    
     if (strain.mixingSequence) {
-      // Count ingredient usage from the mixing sequence
-      strain.mixingSequence.forEach(ingredientName => {
-        ingredientCounts[ingredientName] = (ingredientCounts[ingredientName] || 0) + 1;
+      strain.mixingSequence.forEach(name => {
+        ingredientCounts[name] = (ingredientCounts[name] || 0) + 1;
       });
     } else if (strain.ingredients) {
-      // Fallback to ingredients array if mixingSequence not available
-      strain.ingredients.forEach(ingredient => {
-        const name = ingredient.name;
-        const qty = ingredient.quantity || 1;
-        ingredientCounts[name] = (ingredientCounts[name] || 0) + qty;
+      strain.ingredients.forEach(ing => {
+        const qty = ing.quantity || 1;
+        ingredientCounts[ing.name] = (ingredientCounts[ing.name] || 0) + qty;
       });
     }
-    
-    // Now calculate the proper ingredient needs
-    const enhancedIngredientNeeds = [];
-    
-    // Add the seed/base precursor first
+
+    // Build the ingredient list
+    const needs = [];
     const seedsNeeded = Math.ceil(quantity / calculateTotalUnits(strain.seed));
-    const seedIngredient = {
+    needs.push({
       name: strain.seed.name,
       quantity: seedsNeeded,
       totalCost: strain.seed.cost * seedsNeeded
-    };
-    enhancedIngredientNeeds.push(seedIngredient);
-    
-    // Add drug-specific base ingredients
+    });
+
+    // Drug-specific extras
     if (strain.drugType === 'meth') {
-      // Add required meth production ingredients
-      enhancedIngredientNeeds.push({
-        name: "Acid",
-        quantity: seedsNeeded, // One per batch
-        totalCost: 40 * seedsNeeded
+      needs.push(
+        { name: 'Acid', quantity: seedsNeeded, totalCost: 40 * seedsNeeded },
+        { name: 'Red Phosphorus', quantity: seedsNeeded, totalCost: 40 * seedsNeeded }
+      );
+    } else if (strain.drugType === 'cocaine') {
+      needs.push({
+        name: 'Coca Leaves',
+        quantity: 20 * seedsNeeded,
+        totalCost: (strain.seed.cost / 10) * 20 * seedsNeeded
       });
-      
-      enhancedIngredientNeeds.push({
-        name: "Red Phosphorus",
-        quantity: seedsNeeded, // One per batch
-        totalCost: 40 * seedsNeeded
-      });
-    } 
-    else if (strain.drugType === 'cocaine') {
-      // Add required cocaine production ingredients
-      enhancedIngredientNeeds.push({
-        name: "Coca Leaves",
-        quantity: 20 * seedsNeeded, // 20 leaves per batch
-        totalCost: (strain.seed.cost / 10) * 20 * seedsNeeded // Estimate cost based on seed
-      });
-      
-      // Gasoline is already in common ingredients, but ensure it's added for cocaine
       if (!ingredientCounts['Gasoline']) {
-        enhancedIngredientNeeds.push({
-          name: "Gasoline",
-          quantity: seedsNeeded, // One per batch
-          totalCost: 30 * seedsNeeded
-        });
+        needs.push({ name: 'Gasoline', quantity: seedsNeeded, totalCost: 30 * seedsNeeded });
       }
     }
-    
-    // Add all other ingredients with proper quantities
+
+    // Add the rest
     Object.entries(ingredientCounts).forEach(([name, count]) => {
-      // Find the ingredient in the strain's ingredients
-      const ingredient = strain.ingredients.find(ing => ing.name === name);
-      if (ingredient) {
-        enhancedIngredientNeeds.push({
-          name: name,
-          quantity: count * quantity, // Multiply by the production quantity
-          totalCost: ingredient.cost * count * quantity
+      const ing = strain.ingredients.find(i => i.name === name);
+      if (ing) {
+        needs.push({
+          name,
+          quantity: count * quantity,
+          totalCost: ing.cost * count * quantity
         });
       }
     });
-    
-    // Add packaging needs
-    const packagingNeeded = calculatePackagingNeeds(quantity, strain.packagingType || 'baggies');
-    
-    // Calculate total production cost
-    const productionCost = enhancedIngredientNeeds.reduce((sum, ing) => sum + ing.totalCost, 0) + packagingNeeded.cost;
-    
-    // Expected revenue and profit
+
+    // Packaging
+    const packagingNeeded = packagingType === 'baggies'
+      ? { type: 'baggies', quantity, cost: quantity }
+      : { type: 'jars', quantity: Math.ceil(quantity / 5), cost: Math.ceil(quantity / 5) * 3 };
+
+    // Totals
+    const productionCost = needs.reduce((sum, i) => sum + i.totalCost, 0) + packagingNeeded.cost;
     const expectedRevenue = strain.salePrice * quantity;
     const expectedProfit = expectedRevenue - productionCost;
-    
-    // Create the production plan object
+
     return {
       id: Date.now(),
       strainId: strain.id,
@@ -446,63 +301,35 @@ const StrainCreator = () => {
       status: 'planned',
       dateCreated: new Date().toISOString(),
       dateSold: null,
-      totalIngredientNeeds: enhancedIngredientNeeds,
-      packagingNeeded: packagingNeeded,
-      productionCost: productionCost,
+      totalIngredientNeeds: needs,
+      packagingNeeded,
+      productionCost,
       salePrice: strain.salePrice,
-      expectedRevenue: expectedRevenue,
-      expectedProfit: expectedProfit,
-      effects: strain.effects, // Make sure effects are passed through
-      productionStage: 'plan' // Start at planning stage
+      expectedRevenue,
+      expectedProfit,
+      effects: strain.effects,
+      productionStage: 'plan'
     };
   };
-  
-  // Function to update a production plan
-  const updateProductionPlan = (planId, updates) => {
-    setProductionPlans(prev => prev.map(plan => {
-      if (plan.id !== planId) return plan;
-      
-      // If quantity changed, recalculate everything
-      if (updates.plannedQuantity && updates.plannedQuantity !== plan.plannedQuantity) {
-        const strain = mixes.find(mix => mix.id === plan.strainId);
-        if (strain) {
-          // Use our enhanced function for recalculation
-          const updatedPlan = createEnhancedProductionPlan(strain, updates.plannedQuantity);
-          // Preserve the original ID and any stage-specific data
-          return { 
-            ...updatedPlan, 
-            id: plan.id, 
-            dateCreated: plan.dateCreated,
-            productionStage: updates.productionStage || plan.productionStage,
-            purchasedIngredients: updates.purchasedIngredients || plan.purchasedIngredients,
-            cookingSteps: updates.cookingSteps || plan.cookingSteps,
-            sellingData: updates.sellingData || plan.sellingData
-          };
-        }
-      }
-      
-      // If price changed, recalculate revenue and profit
-      if (updates.salePrice && updates.salePrice !== plan.salePrice) {
-        const newExpectedRevenue = plan.plannedQuantity * updates.salePrice;
-        return {
-          ...plan,
-          ...updates,
-          expectedRevenue: newExpectedRevenue,
-          expectedProfit: newExpectedRevenue - plan.productionCost
-        };
-      }
-      
-      // For all other updates
-      return { ...plan, ...updates };
-    }));
+
+    // production planning
+  const addToProduction = strainId => {
+    const strain = mixes.find(m => m.id === strainId);
+    if (!strain) return;
+    const qty = calculateTotalUnits(strain.seed);
+    const plan = createEnhancedProductionPlan(strain, qty);
+    addProductionPlan(plan);
+    updateSettings('activeTab', 'production');
   };
-  
-  const markAsSold = (planId) => {
+
+  const storeUpdateProductionPlan = (planId, updates) => {
+    updateProductionPlan(planId, updates);
+  };
+
+  const markAsSold = planId => {
     const plan = productionPlans.find(p => p.id === planId);
     if (!plan || plan.status === 'sold') return;
-    
-    // Create a sale record
-    const saleRecord = {
+    const sale = {
       id: Date.now(),
       productionId: plan.id,
       strainId: plan.strainId,
@@ -513,485 +340,236 @@ const StrainCreator = () => {
       totalCost: plan.productionCost,
       profit: plan.expectedProfit,
       dateSold: new Date().toISOString()
-    };
-    
-    // Update production plan status
-    updateProductionPlan(planId, { 
-      status: 'sold',
-      dateSold: saleRecord.dateSold
-    });
-    
-    // Add to sales history
-    setSalesHistory(prev => [...prev, saleRecord]);
-  };
-  
-  const removeProductionPlan = (planId) => {
-    setProductionPlans(prev => prev.filter(plan => plan.id !== planId));
+  }
+    // update status in store
+    updateProductionPlan(planId, { status: 'sold', dateSold: sale.dateSold });
+    // add to daily sales
+    addDailySale(sale);
   };
 
-  const reproduceProductionPlan = (originalPlan, newQuantity, quality) => {
-    // Get the original strain information
-    const strain = mixes.find(mix => mix.id === originalPlan.strainId);
-    
-    if (!strain) {
-      console.error("Unable to find strain for reproduction");
-      return;
-    }
-    
-    // Calculate a new production plan with the updated quantity
-    const newPlan = calculateProductionPlan(strain, newQuantity, quality);
-    
-    // Add the new plan to production plans
-    setProductionPlans(prev => [...prev, newPlan]);
-    
-    // Switch to the production tab
-    setActiveTab('production');
+  const storeRemoveProductionPlan = planId => {
+    removeProductionPlan(planId);
   };
 
-  // Sorting and filtering
-  const handleSort = (column) => {
-    if (sortColumn === column) {
-      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortColumn(column);
-      setSortDirection('asc');
-    }
-  };
-  
-  // Tab switching
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
-    StorageService.saveActiveTab(tab);
+  const reproduceProductionPlan = (originalPlan, qty, quality) => {
+    const strain = mixes.find(m => m.id === originalPlan.strainId);
+    if (!strain) return;
+    const newPlan = calculateProductionPlan(strain, qty, quality);
+    addProductionPlan(newPlan);
+    updateSettings('activeTab', 'production');
   };
 
-  // Filter and sort mixes
+  // filtering & sorting
   const filteredAndSortedMixes = useMemo(() => {
-    // First filter by strain view (all or favorites)
-    let filtered = [...mixes];
-    
-    // Then apply additional filters
-    filtered = filtered.filter(mix => {
-      // Filter by strain name
-      if (filterOptions.name && !mix.name.toLowerCase().includes(filterOptions.name.toLowerCase())) {
-        return false;
-      }
-      
-      // Filter by drug type
-      if (filterOptions.drugType && mix.drugType !== filterOptions.drugType) {
-        return false;
-      }
-      
-      // Filter by seed type
-      if (filterOptions.seedType && !mix.seed.name.toLowerCase().includes(filterOptions.seedType.toLowerCase())) {
-        return false;
-      }
-      
-      // Filter by effect
-      if (filterOptions.effect) {
-        const hasEffect = mix.effects.some(
-          effect => effect.toLowerCase().includes(filterOptions.effect.toLowerCase())
-        );
-        if (!hasEffect) return false;
-      }
-      
+    let list = mixes.filter(mix => {
+      if (filterOptions.name && !mix.name.toLowerCase().includes(filterOptions.name.toLowerCase())) return false;
+      if (filterOptions.drugType && mix.drugType !== filterOptions.drugType) return false;
+      if (filterOptions.seedType && !mix.seed.name.toLowerCase().includes(filterOptions.seedType.toLowerCase())) return false;
+      if (filterOptions.effect && !mix.effects.some(e => e.toLowerCase().includes(filterOptions.effect.toLowerCase()))) return false;
       return true;
     });
-    
-    // Sort items
-    return filtered.sort((a, b) => {
-      if (!sortColumn) return 0;
-
-      let aValue = sortColumn === 'seed' ? a.seed.name : a[sortColumn];
-      let bValue = sortColumn === 'seed' ? b.seed.name : b[sortColumn];
-
-      if (typeof aValue === 'string') {
-        aValue = aValue.toLowerCase();
-        bValue = bValue.toLowerCase();
-      }
-
-      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
-      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+    const { column, direction } = { column: sortColumn, direction: sortDirection };
+    return list.sort((a, b) => {
+      let av = column === 'seed' ? a.seed.name : a[column];
+      let bv = column === 'seed' ? b.seed.name : b[column];
+      if (typeof av === 'string') { av = av.toLowerCase(); bv = bv.toLowerCase(); }
+      if (av < bv) return direction === 'asc' ? -1 : 1;
+      if (av > bv) return direction === 'asc' ? 1 : -1;
       return 0;
     });
   }, [mixes, filterOptions, sortColumn, sortDirection]);
 
-  // Manual save function for the AutoSave component
-  const handleManualSave = useCallback(() => {
-    // Save all current state to storage
-    StorageService.saveSelectedDrugType(selectedDrugType);
-    StorageService.saveCurrentMix(currentMix);
-    StorageService.saveSelectedSeed(selectedSeed);
-    StorageService.saveMixes(mixes);
-    StorageService.saveProductionPlans(productionPlans);
-    StorageService.saveSalesHistory(salesHistory);
-    StorageService.saveActiveTab(activeTab);
-    StorageService.saveFilterOptions(filterOptions);
-    StorageService.saveSortSettings({ column: sortColumn, direction: sortDirection });
-    StorageService.savePriceSettings({
-      salePrice,
-      targetMargin,
-      priceMultiplier,
-      packagingType
-    });
-    StorageService.saveSupplies(supplies);
-    StorageService.saveSupplyHistory(supplyHistory);
-    StorageService.saveDealers(dealers);
-    StorageService.saveCrewMembers(crewMembers);
-    StorageService.saveDealerTransactions(dealerTransactions);
-    StorageService.saveDailySales(dailySales);
-  }, [
-    selectedDrugType, currentMix, selectedSeed, mixes, productionPlans, 
-    salesHistory, activeTab, filterOptions, sortColumn, 
-    sortDirection, salePrice, targetMargin, priceMultiplier, packagingType,
-    supplies, supplyHistory, dealers, crewMembers, dealerTransactions, dailySales
-  ]);
+  const handleSort   = col => updateSettings('sortSettings', { column: col, direction: sortColumn === col && sortDirection === 'asc' ? 'desc' : 'asc' });
+  const handleFilter = opts => updateSettings('filterOptions', opts);
+  const handleTab    = tab  => updateSettings('activeTab', tab);
+  const handleManualSave = () => {/* stub for AutoSave */};
 
-  // Create a game state object to pass to AutoSave
-  const gameState = useMemo(() => ({
-    mixes,
-    productionPlans,
-    salesHistory,
-    activeTab,
-    filterOptions,
-    sortSettings: { column: sortColumn, direction: sortDirection },
-    priceSettings: { salePrice, targetMargin, priceMultiplier, packagingType },
-    currentMix,
-    selectedSeed,
-    selectedDrugType,
-    supplies,
-    supplyHistory,
-    dealers,
-    crewMembers,
-    dealerTransactions,
-    dailySales
-  }), [
-    mixes, productionPlans, salesHistory, activeTab, 
-    filterOptions, sortColumn, sortDirection, salePrice, targetMargin, 
-    priceMultiplier, packagingType, currentMix, selectedSeed, selectedDrugType,
-    supplies, supplyHistory, dealers, crewMembers, dealerTransactions, dailySales
-  ]);
+  // Render Contennt
+  return (
+    <div className="bg-gradient-to-br from-gray-100 to-gray-50 min-h-screen flex justify-center items-start py-8">
+      <div className="w-full max-w-5xl mx-auto p-4">
+        <DopeyHeader />
 
-  // Save data to storage when it changes
-  useEffect(() => {
-    StorageService.saveMixes(mixes);
-  }, [mixes]);
-  
-  useEffect(() => {
-    StorageService.saveProductionPlans(productionPlans);
-  }, [productionPlans]);
-  
-  useEffect(() => {
-    StorageService.saveSalesHistory(salesHistory);
-  }, [salesHistory]);
-  
-  useEffect(() => {
-    StorageService.saveActiveTab(activeTab);
-  }, [activeTab]);
-  
-  useEffect(() => {
-    StorageService.saveFilterOptions(filterOptions);
-  }, [filterOptions]);
-  
-  useEffect(() => {
-    StorageService.saveSortSettings({ column: sortColumn, direction: sortDirection });
-  }, [sortColumn, sortDirection]);
-  
-  useEffect(() => {
-    StorageService.savePriceSettings({
-      salePrice,
-      targetMargin,
-      priceMultiplier,
-      packagingType
-    });
-  }, [salePrice, targetMargin, priceMultiplier, packagingType]);
-  
-  useEffect(() => {
-    StorageService.saveCurrentMix(currentMix);
-  }, [currentMix]);
-  
-  useEffect(() => {
-    StorageService.saveSupplies(supplies);
-  }, [supplies]);
-  
-  useEffect(() => {
-    StorageService.saveSupplyHistory(supplyHistory);
-  }, [supplyHistory]);
-  
-  useEffect(() => {
-    StorageService.saveDealers(dealers);
-  }, [dealers]);
-  
-  useEffect(() => {
-    StorageService.saveCrewMembers(crewMembers);
-  }, [crewMembers]);
-  
-  useEffect(() => {
-    StorageService.saveDealerTransactions(dealerTransactions);
-  }, [dealerTransactions]);
-  
-  useEffect(() => {
-    StorageService.saveDailySales(dailySales);
-  }, [dailySales]);
-
-// Render the component
-      return (
-        <div className="bg-gradient-to-br from-gray-100 to-gray-50 min-h-screen flex justify-center items-start py-8">
-          <div className="w-full max-w-5xl mx-auto p-4">
-            <DopeyHeader />
-            
-            {/* Main Navigation Tabs */}
-            <div className="flex border-b border-gray-200 mb-6 overflow-x-auto">
-        <button
-          className={`py-2 px-4 font-medium text-sm ${
-            activeTab === 'creator'
-              ? 'text-blue-600 border-b-2 border-blue-600'
-              : 'text-gray-500 hover:text-gray-700'
-          }`}
-          onClick={() => handleTabChange('creator')}
-        >
-          <FlaskConical className="inline-block mr-1 w-4 h-4" />
-          Creator
-        </button>
-        <button
-          className={`py-2 px-4 font-medium text-sm ${
-            activeTab === 'effects'
-              ? 'text-purple-600 border-b-2 border-purple-600'
-              : 'text-gray-500 hover:text-gray-700'
-          }`}
-          onClick={() => handleTabChange('effects')}
-        >
-          <Beaker className="inline-block mr-1 w-4 h-4" />
-          Effect Builder
-        </button>
-        <button
-          className={`py-2 px-4 font-medium text-sm ${
-            activeTab === 'saved'
-              ? 'text-green-600 border-b-2 border-green-600'
-              : 'text-gray-500 hover:text-gray-700'
-          }`}
-          onClick={() => {
-            handleTabChange('saved');
-          }}
-        >
-          <Heart className="inline-block mr-1 w-4 h-4" />
-          My Strains
-        </button>
-        <button
-          className={`py-2 px-4 font-medium text-sm ${
-            activeTab === 'production'
-              ? 'text-indigo-600 border-b-2 border-indigo-600'
-              : 'text-gray-500 hover:text-gray-700'
-          }`}
-          onClick={() => handleTabChange('production')}
-        >
-          <Factory className="inline-block mr-1 w-4 h-4" />
-          Production
-        </button>
-        <button
-          className={`py-2 px-4 font-medium text-sm ${
-            activeTab === 'crew'
-              ? 'text-teal-600 border-b-2 border-teal-600'
-              : 'text-gray-500 hover:text-gray-700'
-          }`}
-          onClick={() => handleTabChange('crew')}
-        >
-          <Users className="inline-block mr-1 w-4 h-4" />
-          Crew
-        </button>
-        <button
-          className={`py-2 px-4 font-medium text-sm ${
-            activeTab === 'sales'
-              ? 'text-orange-600 border-b-2 border-orange-600'
-              : 'text-gray-500 hover:text-gray-700'
-          }`}
-          onClick={() => handleTabChange('sales')}
-        >
-          <BarChart2 className="inline-block mr-1 w-4 h-4" />
-          Sales
-        </button>
-        <button
-          className={`py-2 px-4 font-medium text-sm ${
-            activeTab === 'supply'
-              ? 'text-purple-600 border-b-2 border-purple-600'
-              : 'text-gray-500 hover:text-gray-700'
-          }`}
-          onClick={() => handleTabChange('supply')}
-        >
-          <Package className="inline-block mr-1 w-4 h-4" />
-          Supplies
-        </button>
-      </div>
-
-      {/* Content based on active tab */}
-      {activeTab === 'creator' ? (
-        <div className="strain-card">
-          {/* Drug Type Selection */}
-          <DrugTypeSelector 
-            selectedDrugType={selectedDrugType}
-            onSelectDrugType={setSelectedDrugType}
-          />
-
-          {/* Seed Type Selection */}
-          <SeedSelector 
-            seedTypes={seedTypes} 
-            selectedSeed={selectedSeed} 
-            onSelectSeed={setSelectedSeed}
-            selectedDrugType={selectedDrugType}
-          />
-
-          {/* Sequential Ingredients Selector */}
-          <SequentialIngredientsSelector
-            ingredients={ingredients}
-            currentMix={currentMix}
-            currentEffects={currentEffects}
-            mixingHistory={mixingHistory}
-            effectColors={effectColors}
-            additiveEffects={additiveEffects}
-            addIngredient={addIngredient}
-            removeLastIngredient={removeLastIngredient}
-            resetMix={resetMix}
-            finalizeMix={finalizeMix}
-            selectedDrugType={selectedDrugType}
-          />
-
-          {/* Current Mix Display */}
-          <CurrentMixDisplay 
-            selectedSeed={selectedSeed}
-            currentMix={currentMix}
-            currentEffects={currentEffects}
-            effectColors={effectColors}
-            additiveEffects={additiveEffects}
-            calculateTotalCost={getTotalCost}
-            drugTypes={drugTypes}
-          />
-
-          {/* Packaging Type Selection */}
-          <PackagingSelector 
-            packagingType={packagingType}
-            setPackagingType={setPackagingType}
-          />
-
-          {/* Price and Margin Inputs */}
-          <PriceMarginInputs 
-            salePrice={salePrice} 
-            targetMargin={targetMargin}
-            priceMultiplier={priceMultiplier}
-            setPriceMultiplier={setPriceMultiplier}
-            setSalePrice={setSalePrice}
-            setTargetMargin={setTargetMargin}
-            calculateMarginFromSalePrice={handleCalculateMarginFromSalePrice}
-            calculateSalePriceFromMargin={handleCalculateSalePriceFromMargin}
-            currentEffects={currentEffects}
-            productType={selectedDrugType}
-          />
-
-          {/* Profit Information Display */}
-          {selectedSeed && salePrice > 0 && (
-            <ProfitInfoDisplay 
-              calculateProfit={getProfit}
-              calculateProfitMargin={getProfitMargin}
-              calculateTotalBuddyProfit={getTotalBatchProfit}
-              calculatePackagingProfit={getPackagingProfit}
-              priceMultiplier={priceMultiplier}
-              packagingType={packagingType}
-            />
-          )}
-
-          {/* Save Mix Button */}
-          <button
-            className="btn-primary"
-            onClick={finalizeMix}
-            disabled={!selectedSeed || currentMix.length === 0 || salePrice <= 0}
-          >
-            <CheckCircle className="mr-2 w-5 h-5" />
-            Save Creation
-          </button>
+        {/* tabs */}
+        <div className="flex border-b border-gray-200 mb-6 overflow-x-auto">
+          {['creator','effects','saved','production','sales','crew','supply'].map(t => (
+            <button
+              key={t}
+              onClick={() => handleTab(t)}
+              className={`py-2 px-4 font-medium text-sm ${
+                activeTab===t
+                  ? 'text-blue-600 border-b-2 border-blue-600'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              {t.charAt(0).toUpperCase()+t.slice(1)}
+            </button>
+          ))}
         </div>
 
-      ) : activeTab === 'effects' ? (
-        <EffectBuilderTab
-          seedTypes={seedTypes}
-          ingredients={ingredients}
-          effectColors={effectColors}
-          drugTypes={drugTypes}
-          calculateStrainEffects={calculateStrainEffects}
-        />
-      ) : activeTab === 'saved' ? (
-        <CombinedStrainsTab
-          mixes={filteredAndSortedMixes}
-          filterOptions={filterOptions}
-          setFilterOptions={setFilterOptions}
-          handleSort={handleSort}
-          sortColumn={sortColumn}
-          sortDirection={sortDirection}
-          removeMix={removeMix}
-          addToProduction={addToProduction}
-          toggleFavorite={toggleFavorite}
-          effectColors={effectColors}
-          drugTypes={drugTypes}
-        />
-      ) : activeTab === 'production' ? (
-        <ProductionPlanningTab
-          strains={mixes}
-          productionPlans={productionPlans}
-          updateProductionPlan={updateProductionPlan}
-          markAsSold={markAsSold}
-          removeProductionPlan={removeProductionPlan}
-          reproduceProductionPlan={reproduceProductionPlan}
-          drugTypes={drugTypes}
-          dealers={dealers}
-          dailySales={dailySales}
-          setDailySales={setDailySales}
-          dealerTransactions={dealerTransactions}
-          setDealerTransactions={setDealerTransactions}
-        />
-      ) : activeTab === 'supply' ? (
-        <SupplyManagementTab
-          supplies={supplies}
-          setSupplies={setSupplies}
-          supplyHistory={supplyHistory}
-          setSupplyHistory={setSupplyHistory}
-          productionPlans={productionPlans}
-          drugTypes={drugTypes}
-          seedTypes={seedTypes}
-          ingredients={ingredients}
-        />
-      ) : activeTab === 'sales' ? (
-        <SalesHistoryTab
-          salesHistory={salesHistory}
-          reproduceProductionPlan={reproduceProductionPlan}
-          drugTypes={drugTypes}
-        />
-      ) : activeTab === 'crew' ? (
-        <CrewManagementTab
-          dealers={dealers}
-          setDealers={setDealers}
-          crewMembers={crewMembers}
-          setCrewMembers={setCrewMembers}
-          dealerTransactions={dealerTransactions}
-          setDealerTransactions={setDealerTransactions}
-          dailySales={dailySales}
-          setDailySales={setDailySales}
-          drugTypes={drugTypes}
-        />
-      ) : null}
+        {activeTab==='creator' && (
+          <div className="strain-card">
+            <DrugTypeSelector selectedDrugType={selectedDrugType} onSelectDrugType={dt=>updateSettings('selectedDrugType',dt)} />
+            <SeedSelector seedTypes={seedTypes} selectedSeed={selectedSeed} onSelectSeed={s=>updateSettings('selectedSeed',s)} selectedDrugType={selectedDrugType}/>
+            <SequentialIngredientsSelector
+              ingredients={ingredients}
+              currentMix={currentMix}
+              currentEffects={currentEffects}
+              mixingHistory={mixingHistory}
+              effectColors={effectColors}
+              additiveEffects={additiveEffects}
+              addIngredient={addIngredient}
+              removeLastIngredient={removeLastIngredient}
+              resetMix={resetMix}
+              finalizeMix={finalizeMix}
+              selectedDrugType={selectedDrugType}
+            />
+            <CurrentMixDisplay
+              selectedSeed={selectedSeed}
+              currentMix={currentMix}
+              currentEffects={currentEffects}
+              effectColors={effectColors}
+              additiveEffects={additiveEffects}
+              calculateTotalCost={getTotalCost}
+              drugTypes={drugTypes}
+            />
+            <PackagingSelector packagingType={localPackagingType} setPackagingType={setLocalPackagingType} />
+            <PriceMarginInputs
+              salePrice={localSalePrice}
+              targetMargin={localTargetMargin}
+              priceMultiplier={localMultiplier}
+              setPriceMultiplier={setLocalMultiplier}
+              setSalePrice={setLocalSalePrice}
+              setTargetMargin={setLocalTargetMargin}
+              calculateMarginFromSalePrice={handleMarginFromSalePrice}
+              calculateSalePriceFromMargin={handleSalePriceFromMargin}
+              currentEffects={currentEffects}
+              productType={selectedDrugType}
+            />
+            {selectedSeed && salePrice>0 && (
+              <ProfitInfoDisplay
+                calculateProfit={getProfit}
+                calculateProfitMargin={getProfitMargin}
+                calculateTotalBuddyProfit={getTotalBatchProfit}
+                calculatePackagingProfit={getPackagingProfit}
+                priceMultiplier={localMultiplier}
+                packagingType={localPackagingType}
+              />
+            )}
+            <button className="btn-primary mt-4" onClick={finalizeMix} disabled={!selectedSeed||!currentMix.length||salePrice<=0}>
+              <CheckCircle className="mr-2 w-5 h-5"/>Save Creation
+            </button>
+          </div>
+        )}
 
-      {/* Name Prompt Modal */}
-      <NamePromptModal
-        isOpen={showNamePrompt}
-        onClose={() => setShowNamePrompt(false)}
-        onSave={saveMix}
-        initialName={''}
-      />
+        {activeTab==='effects' && (
+          <EffectBuilderTab
+            seedTypes={seedTypes}
+            ingredients={ingredients}
+            effectColors={effectColors}
+            drugTypes={drugTypes}
+            calculateStrainEffects={calculateStrainEffects}
+          />
+        )}
+
+        {activeTab==='saved' && (
+          <CombinedStrainsTab
+            mixes={filteredAndSortedMixes}
+            filterOptions={filterOptions}
+            setFilterOptions={handleFilter}
+            handleSort={handleSort}
+            sortColumn={sortColumn}
+            sortDirection={sortDirection}
+            removeMix={id=>setMixes(mixes.filter(m=>m.id!==id))}
+            addToProduction={addToProduction}
+            toggleFavorite={id=>setMixes(mixes.map(m=>m.id===id?{...m,favorite:!m.favorite}:m))}
+            effectColors={effectColors}
+            drugTypes={drugTypes}
+          />
+        )}
+
+        {activeTab==='production' && (
+          <ProductionPlanningTab
+            strains={mixes}
+            productionPlans={productionPlans}
+            updateProductionPlan={updateProductionPlan}
+            markAsSold={markAsSold}
+            removeProductionPlan={removeProductionPlan}
+            reproduceProductionPlan={reproduceProductionPlan}
+            drugTypes={drugTypes}
+            dealers={dealers}
+            dailySales={salesHistory}
+            setDailySales={setSalesHistory}
+            dealerTransactions={dealerTransactions}
+            setDealerTransactions={setDealerTransactions}
+          />
+        )}
+
+        {activeTab==='sales' && (
+          <SalesHistoryTab
+            salesHistory={salesHistory}
+            reproduceProductionPlan={reproduceProductionPlan}
+            drugTypes={drugTypes}
+          />
+        )}
+
+        {activeTab==='crew' && (
+          <CrewManagementTab
+            dealers={dealers}
+            setDealers={setDealers}
+            crewMembers={crewMembers}
+            setCrewMembers={setCrewMembers}
+            dealerTransactions={dealerTransactions}
+            setDealerTransactions={setDealerTransactions}
+            dailySales={salesHistory}
+            setDailySales={setSalesHistory}
+            drugTypes={drugTypes}
+          />
+        )}
+
+        {activeTab==='supply' && (
+          <SupplyManagementTab
+            supplies={supplies}
+            setSupplies={setSupplies}
+            supplyHistory={supplyHistory}
+            setSupplyHistory={setSupplyHistory}
+            productionPlans={productionPlans}
+            drugTypes={drugTypes}
+            seedTypes={seedTypes}
+            ingredients={ingredients}
+          />
+        )}
+
+        <NamePromptModal
+          isOpen={showNamePrompt}
+          onClose={()=>setShowNamePrompt(false)}
+          onSave={saveMix}
+          initialName=""
+        />
+
+        <AutoSave
+          gameState={{
+            mixes,
+            productionPlans,
+            salesHistory,
+            activeTab,
+            filterOptions,
+            sortSettings: { column: sortColumn, direction: sortDirection },
+            priceSettings: { salePrice, targetMargin, priceMultiplier, packagingType },
+            currentMix,
+            selectedSeed,
+            selectedDrugType,
+            supplies,
+            supplyHistory,
+            dealers,
+            crewMembers,
+            dealerTransactions
+          }}
+          onManualSave={handleManualSave}
+        />
+      </div>
     </div>
-
-    {/* AutoSave component */}
-    <AutoSave 
-      gameState={gameState}
-      onManualSave={handleManualSave}
-    />
-  </div>
-);
-}
+  );
+};
 
 export default StrainCreator;

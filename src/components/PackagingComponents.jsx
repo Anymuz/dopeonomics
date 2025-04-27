@@ -57,7 +57,8 @@ export const PriceMarginInputs = ({
       setSalePrice(recommendedPrice);
       calculateMarginFromSalePrice();
     }
-  }, [recommendedPrice, setSalePrice, calculateMarginFromSalePrice]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recommendedPrice]);
 
   // Handler to ensure only whole numbers are entered
   const handlePriceChange = (e) => {

@@ -1,3 +1,4 @@
+import useGameStore from '../stores/GameStore.jsx';
 // DrugTypeSelector.js
 import React from 'react';
 import { drugTypes } from '../data/straindata.jsx';

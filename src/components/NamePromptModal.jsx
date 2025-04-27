@@ -1,3 +1,4 @@
+import useGameStore from '../stores/GameStore.jsx';
 // NamePromptModal.js
 import React, { useState, useEffect } from 'react';
 import { XCircle } from 'lucide-react';

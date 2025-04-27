@@ -1,3 +1,4 @@
+import useGameStore from '../stores/GameStore.jsx';
 import React from 'react';
 
 // Updated Current Mix Display component to show the sequential nature of the mix

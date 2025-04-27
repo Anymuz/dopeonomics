@@ -1,3 +1,4 @@
+import useGameStore from '../stores/GameStore.jsx';
 // Quantity and Quality Selection Modal
 import React, { useState, useEffect } from 'react';
 import { Star, Info } from 'lucide-react';
