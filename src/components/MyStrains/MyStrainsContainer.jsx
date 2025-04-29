@@ -1,13 +1,9 @@
 // src/components/MyStrains/MyStrainsContainer.jsx
 import MyStrains from './MyStrains';
-// (future) import { useStrains } from '@hooks';
+ import { useStrains } from '@hooks';
 
 const MyStrainsContainer = () => {
-  // Temporary dummy strains for now
-  const strains = [
-    { id: 1, name: 'Purple Haze', potency: 'High' },
-    { id: 2, name: 'White Widow', potency: 'Medium' },
-  ];
+  const { strains } = useStrains();
 
   return <MyStrains strains={strains} />;
 };

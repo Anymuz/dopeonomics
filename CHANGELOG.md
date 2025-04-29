@@ -27,7 +27,11 @@ All notable changes to this project will be documented in this file.
 - Preserved original Dopeonomics core styles
 
 ### - Refactor SupplyManagementTab
-- (to be filled once complete)
+- Refactored entire project structure and archetecture for maintainability
+- Installed Zustand libarary and implemented it for all tabs
+- Temporarily using dummy data for prototype reasons
+- Temporarily reverted to basic styles with intent to re-apply once backend stable
+- All Tabs work.
 
 ### - Convert productionPlans to use GameStore
 - (to be filled once complete)

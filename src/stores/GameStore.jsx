@@ -16,6 +16,8 @@ import {
   createSettingsSlice,
   createCollapseStateSlice,
   createResetSlice,
+  createStrainsSlice, 
+  createSalesHistorySlice, 
 } from './slices';
 
 const useGameStore = create(
@@ -34,6 +36,8 @@ const useGameStore = create(
       ...createSettingsSlice(set, get),
       ...createCollapseStateSlice(set, get),
       ...createResetSlice(set, get),
+      ...createStrainsSlice(set, get), 
+      ...createSalesHistorySlice(set, get),
     }),
     {
       name: 'dopey_game_store',

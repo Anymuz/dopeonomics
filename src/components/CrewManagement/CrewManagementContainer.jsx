@@ -1,19 +1,12 @@
 // src/components/CrewManagement/CrewManagementContainer.jsx
 import CrewManagementTab from './CrewManagementTab';
-// (future) import { useCrew, useDealers } from '@hooks';
+import { useCrew, useDealers } from '@hooks';
 
 const CrewManagementContainer = () => {
-  const crewMembers = [
-    { id: 1, name: 'John', role: 'Breeder' },
-    { id: 2, name: 'Jane', role: 'Grower' },
-  ];
+  const { crew } = useCrew();
+  const { dealers } = useDealers();
 
-  const dealers = [
-    { id: 1, name: 'Tommy', region: 'East District' },
-    { id: 2, name: 'Sara', region: 'West District' },
-  ];
-
-  return <CrewManagementTab crewMembers={crewMembers} dealers={dealers} />;
+  return <CrewManagementTab crewMembers={crew} dealers={dealers} />;
 };
 
 export default CrewManagementContainer;
