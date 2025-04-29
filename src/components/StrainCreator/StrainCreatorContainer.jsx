@@ -1,33 +1,26 @@
 // src/components/StrainCreator/StrainCreatorContainer.jsx
-import { useState } from 'react';
-import StrainCreator from './StrainCreator';
-import { useSeeds, useMixes, useIngredients } from '@hooks';
+import StrainCreatorTab from './StrainCreatorTab';
+import { useSeeds, useIngredients } from '@hooks';
+import { calculateRecommendedPrice } from '@utils/pricing';
 
 const StrainCreatorContainer = () => {
   const { seeds } = useSeeds();
-  const { mixes } = useMixes();
   const { ingredients } = useIngredients();
 
-  const [selectedSeed, setSelectedSeed] = useState(null);
-  const [selectedIngredients, setSelectedIngredients] = useState([]);
+  // For now, simulate selected effects and quality
+  const selectedEffects = ['Relaxed', 'Happy']; // Replace with real selections later
+  const selectedQuality = 'High'; // Replace with real selection later
 
-  const handleSeedSelect = (seed) => {
-    setSelectedSeed(seed);
-  };
-
-  const handleIngredientSelect = (ingredient) => {
-    setSelectedIngredients((prev) => [...prev, ingredient]);
-  };
+  const recommendedPrice = calculateRecommendedPrice({
+    effects: selectedEffects,
+    quality: selectedQuality,
+  });
 
   return (
-    <StrainCreator
+    <StrainCreatorTab
       seeds={seeds}
-      mixes={mixes}
       ingredients={ingredients}
-      selectedSeed={selectedSeed}
-      selectedIngredients={selectedIngredients}
-      onSeedSelect={handleSeedSelect}
-      onIngredientSelect={handleIngredientSelect}
+      recommendedPrice={recommendedPrice}
     />
   );
 };
