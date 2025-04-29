@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { FlaskConical, TrendingUp, DollarSign, BarChart, Settings, Heart, ExternalLink } from 'lucide-react';
-import SettingsModal from '../utils/SettingsModal.jsx';
+//import SettingsModal from '../../old/SettingsModal.jsx';
 
 const DopeyHeader = () => {
-  const [showSettings, setShowSettings] = useState(false);
+//  const [showSettings, setShowSettings] = useState(false);
   const [showDonateModal, setShowDonateModal] = useState(false);
 
   return (
     <>
       <div className="w-full flex flex-col items-center py-6 relative">
         {/* Settings button (top right) */}
+        {/*
         <button 
           onClick={() => setShowSettings(true)}
           className="absolute top-0 right-0 p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors"
@@ -19,6 +20,7 @@ const DopeyHeader = () => {
         </button>
         
         {/* Donate button (top left) */}
+
         <button 
           onClick={() => setShowDonateModal(true)}
           className="absolute top-0 left-0 p-2 flex items-center bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-full shadow-md hover:from-pink-600 hover:to-purple-600 transition-colors"
@@ -67,11 +69,11 @@ const DopeyHeader = () => {
         </div>
       </div>
       
-      {/* Settings Modal */}
+      {/* Settings Modal 
       <SettingsModal 
         isOpen={showSettings} 
         onClose={() => setShowSettings(false)} 
-      />
+      />*/}
 
       {/* Donate Modal */}
       {showDonateModal && (

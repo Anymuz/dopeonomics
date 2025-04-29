@@ -1,5 +1,5 @@
 // src/hooks/ingredientsHook.jsx
-import useGameStore from '@/stores/GameStore';
+import useGameStore from '@stores/GameStore';
 
 const useIngredients = () => {
   const ingredients = useGameStore((state) => state.ingredients);

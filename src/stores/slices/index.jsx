@@ -12,3 +12,5 @@ export { createCrewSlice } from './crewSlice';
 export { createSettingsSlice } from './settingsSlice';
 export { createCollapseStateSlice } from './collapseStateSlice';
 export { createResetSlice } from './resetSlice';
+export { createStrainsSlice } from './strainsSlice'
+export { createSalesHistorySlice } from './salesHistorySlice';
