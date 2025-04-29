@@ -3,7 +3,7 @@
 # Branching Strategy
 
 ## Create new iteration branch
-git checkout -b iteration/1-core-infrastructure
+git checkout -b iteration/1-core-infrastructure-main
 
 ## Create each project task branch under iteration
 git checkout -b /iteration/1-core-infrastructure/refactor-supply-tab
