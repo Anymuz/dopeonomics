@@ -1,14 +1,20 @@
 // src/components/ProductionPlanning/ProductionPlanningContainer.jsx
 import ProductionPlanningTab from './ProductionPlanningTab';
-// (future) import { useProductionPlans } from '@hooks';
+import { useProductionPlans, useIngredients } from '@hooks';
+import { calculateProductionCost } from '@utils/pricing';
 
 const ProductionPlanningContainer = () => {
-  const productionPlans = [
-    { id: 1, name: 'Batch A', quantity: 100, quality: 'High' },
-    { id: 2, name: 'Batch B', quantity: 50, quality: 'Medium' },
-  ];
+  const { productionPlans } = useProductionPlans();
+  const { ingredients } = useIngredients();
 
-  return <ProductionPlanningTab productionPlans={productionPlans} />;
+  // Simulate ingredient mapping per strain (real logic should link plans to ingredient sets)
+  const enrichedPlans = productionPlans.map((plan) => {
+    const relatedIngredients = ingredients.filter((ing) => ing.strain === plan.strainName);
+    const productionCost = calculateProductionCost(relatedIngredients);
+    return { ...plan, productionCost };
+  });
+
+  return <ProductionPlanningTab productionPlans={enrichedPlans} />;
 };
 
 export default ProductionPlanningContainer;

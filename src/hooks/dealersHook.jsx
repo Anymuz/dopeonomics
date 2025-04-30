@@ -1,21 +1,11 @@
 // src/hooks/dealersHook.jsx
-import useGameStore from '@stores/GameStore';
+import useGameStore from '@/stores/GameStore';
 
 const useDealers = () => {
-    const {
-        getDealers, setDealers, updateDealer, resetDealers,
-    } = useGameStore((state) => ({
-        getDealers: state.getDealers,
-        setDealers: state.setDealers,
-        updateDealer: state.updateDealer,
-        resetDealers: state.resetDealers,
-    }));
-
-    return {
-        getDealers,
-        setDealers,
-        updateDealer,
-        resetDealers,
-    };
+  const dealers = useGameStore((state) => state.dealers);
+  const setDealers = useGameStore((state) => state.setDealers);
+  const resetDealers = useGameStore((state) => state.resetDealers);
+  return { dealers, setDealers, resetDealers };
 };
+
 export default useDealers;

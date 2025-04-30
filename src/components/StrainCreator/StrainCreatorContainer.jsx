@@ -1,33 +1,63 @@
 // src/components/StrainCreator/StrainCreatorContainer.jsx
-import { useState } from 'react';
-import StrainCreator from './StrainCreator';
-import { useSeeds, useMixes, useIngredients } from '@hooks';
+import { useState, useMemo } from 'react';
+import StrainCreatorTab from './StrainCreatorTab';
+import { useSeeds, useIngredients, useStrains } from '@hooks';
+import { calculateRecommendedPrice } from '@/utils/pricing';
 
 const StrainCreatorContainer = () => {
   const { seeds } = useSeeds();
-  const { mixes } = useMixes();
   const { ingredients } = useIngredients();
+  const { strains, setStrains } = useStrains();
 
   const [selectedSeed, setSelectedSeed] = useState(null);
-  const [selectedIngredients, setSelectedIngredients] = useState([]);
+  const [selectedIngredientIds, setSelectedIngredientIds] = useState([]);
+  const [strainName, setStrainName] = useState('');
+  const [selectedQuality, setSelectedQuality] = useState('Medium');
 
-  const handleSeedSelect = (seed) => {
-    setSelectedSeed(seed);
+  const selectedIngredients = ingredients.filter(ing => selectedIngredientIds.includes(ing.id));
+
+  const effects = useMemo(() => selectedIngredients.flatMap(
+    (ingredient) => ingredient.defaultEffect ? [ingredient.defaultEffect] : []
+  ), [selectedIngredients]);
+
+  const recommendedPrice = useMemo(() =>
+    calculateRecommendedPrice({ effects, quality: selectedQuality }),
+    [effects, selectedQuality]
+  );
+
+  const syntheticStrain = {
+    id: strains.length + 1,
+    name: strainName,
+    seed: selectedSeed,
+    ingredients: selectedIngredients,
+    effects,
+    quality: selectedQuality,
+    price: recommendedPrice,
   };
 
-  const handleIngredientSelect = (ingredient) => {
-    setSelectedIngredients((prev) => [...prev, ingredient]);
+  const saveStrain = () => {
+    if (!strainName || selectedIngredients.length === 0) return;
+    setStrains([...strains, syntheticStrain]);
+    setStrainName('');
+    setSelectedSeed(null);
+    setSelectedIngredientIds([]);
+    setSelectedQuality('Medium');
   };
 
   return (
-    <StrainCreator
+    <StrainCreatorTab
       seeds={seeds}
-      mixes={mixes}
       ingredients={ingredients}
       selectedSeed={selectedSeed}
-      selectedIngredients={selectedIngredients}
-      onSeedSelect={handleSeedSelect}
-      onIngredientSelect={handleIngredientSelect}
+      setSelectedSeed={setSelectedSeed}
+      selectedIngredientIds={selectedIngredientIds}
+      setSelectedIngredientIds={setSelectedIngredientIds}
+      strainName={strainName}
+      setStrainName={setStrainName}
+      selectedQuality={selectedQuality}
+      setSelectedQuality={setSelectedQuality}
+      syntheticStrain={syntheticStrain}
+      onSave={saveStrain}
     />
   );
 };

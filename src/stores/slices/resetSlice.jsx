@@ -1,9 +1,4 @@
 // src/stores/slices/resetSlice.js
-
-
-
-
-
 export const createResetSlice = (set) => ({
     resetGame: () => set({
         seeds: [],

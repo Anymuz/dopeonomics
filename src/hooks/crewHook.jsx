@@ -1,22 +1,11 @@
 // src/hooks/crewHook.jsx
-import useGameStore from '@stores/GameStore';
+import useGameStore from '@/stores/GameStore';
 
 const useCrew = () => {
-    const {
-        getCrewMembers, setCrewMembers, updateCrewMember, resetCrewMembers,
-    } = useGameStore((state) => ({
-        getCrewMembers: state.getCrewMembers,
-        setCrewMembers: state.setCrewMembers,
-        updateCrewMember: state.updateCrewMember,
-        resetCrewMembers: state.resetCrewMembers,
-    }));
-
-    return {
-        getCrewMembers,
-        setCrewMembers,
-        updateCrewMember,
-        resetCrewMembers,
-    };
+  const crew = useGameStore((state) => state.crew);
+  const setCrew = useGameStore((state) => state.setCrew);
+  const resetCrew = useGameStore((state) => state.resetCrew);
+  return { crew, setCrew, resetCrew };
 };
-export default useCrew;
 
+export default useCrew;

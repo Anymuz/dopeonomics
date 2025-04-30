@@ -1,25 +1,11 @@
 // src/hooks/productionPlansHook.jsx
-import useGameStore from '@stores/GameStore';
+import useGameStore from '@/stores/GameStore';
 
 const useProductionPlans = () => {
-    const {
-        getProductionPlans, setProductionPlans, addProductionPlan, updateProductionPlan, removeProductionPlan, resetProductionPlans,
-    } = useGameStore((state) => ({
-        getProductionPlans: state.getProductionPlans,
-        setProductionPlans: state.setProductionPlans,
-        addProductionPlan: state.addProductionPlan,
-        updateProductionPlan: state.updateProductionPlan,
-        removeProductionPlan: state.removeProductionPlan,
-        resetProductionPlans: state.resetProductionPlans,
-    }));
-
-    return {
-        getProductionPlans,
-        setProductionPlans,
-        addProductionPlan,
-        updateProductionPlan,
-        removeProductionPlan,
-        resetProductionPlans,
-    };
+  const productionPlans = useGameStore((state) => state.productionPlans);
+  const setProductionPlans = useGameStore((state) => state.setProductionPlans);
+  const resetProductionPlans = useGameStore((state) => state.resetProductionPlans);
+  return { productionPlans, setProductionPlans, resetProductionPlans };
 };
+
 export default useProductionPlans;

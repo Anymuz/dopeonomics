@@ -1,22 +1,11 @@
 // src/hooks/supplyHistoryHook.jsx
-import useGameStore from '@stores/GameStore';
-
+import useGameStore from '@/stores/GameStore';
 
 const useSupplyHistory = () => {
-    const {
-        getSupplyHistory, setSupplyHistory, addSupplyHistoryEntry, resetSupplyHistory,
-    } = useGameStore((state) => ({
-        getSupplyHistory: state.getSupplyHistory,
-        setSupplyHistory: state.setSupplyHistory,
-        addSupplyHistoryEntry: state.addSupplyHistoryEntry,
-        resetSupplyHistory: state.resetSupplyHistory,
-    }));
-
-    return {
-        getSupplyHistory,
-        setSupplyHistory,
-        addSupplyHistoryEntry,
-        resetSupplyHistory,
-    };
+  const supplyHistory = useGameStore((state) => state.supplyHistory);
+  const setSupplyHistory = useGameStore((state) => state.setSupplyHistory);
+  const resetSupplyHistory = useGameStore((state) => state.resetSupplyHistory);
+  return { supplyHistory, setSupplyHistory, resetSupplyHistory };
 };
+
 export default useSupplyHistory;
