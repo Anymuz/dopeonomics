@@ -10,7 +10,7 @@ export { default as useSupply } from './supplyHook.jsx';
 export { default as useSupplyHistory } from './supplyHistoryHook.jsx';
 export { default as useSalesHistory } from './salesHistoryHook';
 export { default as useSettings} from './settingsHook.jsx';
-export { default as useIngredients } from './ingredientsHook.jsx';
+export { default as useIngredients } from './ingredientHook.jsx';
 export { default as useStrains } from './strainsHook.jsx';
 export { default as useStartupSeeding}  from './loadStartupData.jsx';
 

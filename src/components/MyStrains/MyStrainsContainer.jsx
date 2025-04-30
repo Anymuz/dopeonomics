@@ -1,11 +1,10 @@
 // src/components/MyStrains/MyStrainsContainer.jsx
-import MyStrains from './MyStrains';
- import { useStrains } from '@hooks';
+import MyStrainsTab from './MyStrainsTab';
+import { useStrains } from '@hooks';
 
 const MyStrainsContainer = () => {
   const { strains } = useStrains();
-
-  return <MyStrains strains={strains} />;
+  return <MyStrainsTab strains={strains} />;
 };
 
 export default MyStrainsContainer;
