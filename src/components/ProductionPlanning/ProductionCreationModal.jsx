@@ -1,9 +1,7 @@
 // src/components/ProductionPlanning/ProductionCreationModal.jsx
 import { useState } from 'react';
-import { useProductionPlans } from '@hooks';
 
-const ProductionCreationModal = ({ strains, onClose }) => {
-  const { addPlan } = useProductionPlans();
+const ProductionCreationModal = ({ strains, addPlan, onClose }) => {
   const [selectedStrainId, setSelectedStrainId] = useState('');
   const [batchSize, setBatchSize] = useState(10);
   const [customName, setCustomName] = useState('');
@@ -11,6 +9,7 @@ const ProductionCreationModal = ({ strains, onClose }) => {
   const handleSubmit = () => {
     const strainId = Number(selectedStrainId);
     const base = strains.find((s) => s.id === strainId);
+
     if (!base) {
       alert('No valid strain selected.');
       return;
@@ -29,7 +28,6 @@ const ProductionCreationModal = ({ strains, onClose }) => {
       status: 'Planned',
     };
 
-    console.log('[DEBUG] Dispatching new production plan:', newPlan);
     addPlan(newPlan);
     onClose();
   };

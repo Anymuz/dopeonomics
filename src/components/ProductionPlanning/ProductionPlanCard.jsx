@@ -1,9 +1,5 @@
 // src/components/ProductionPlanning/ProductionPlanCard.jsx
-import { useProductionPlans } from '@hooks';
-
-const ProductionPlanCard = ({ plan }) => {
-  const { updatePlanStatus, deletePlan } = useProductionPlans();
-
+const ProductionPlanCard = ({ plan, updatePlanStatus, deletePlan }) => {
   const handleStart = () => updatePlanStatus(plan.id, 'In Progress');
   const handleComplete = () => updatePlanStatus(plan.id, 'Completed');
   const handleDelete = () => deletePlan(plan.id);

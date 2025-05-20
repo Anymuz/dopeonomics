@@ -2,11 +2,15 @@
 import { useState } from 'react';
 import ProductionPlanCard from './ProductionPlanCard';
 import ProductionCreationModal from './ProductionCreationModal';
-import { useStrains } from '@hooks';
 
-const ProductionPlanningTab = ({ productionPlans }) => {
+const ProductionPlanningTab = ({
+  productionPlans,
+  addPlan,
+  updatePlanStatus,
+  deletePlan,
+  strains,
+}) => {
   const [showModal, setShowModal] = useState(false);
-  const { strains } = useStrains();
 
   return (
     <div className="space-y-6">
@@ -21,7 +25,11 @@ const ProductionPlanningTab = ({ productionPlans }) => {
       </div>
 
       {showModal && (
-        <ProductionCreationModal strains={strains} onClose={() => setShowModal(false)} />
+        <ProductionCreationModal
+          onClose={() => setShowModal(false)}
+          strains={strains}
+          addPlan={addPlan}
+        />
       )}
 
       {productionPlans.length === 0 ? (
@@ -29,7 +37,12 @@ const ProductionPlanningTab = ({ productionPlans }) => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {productionPlans.map((plan) => (
-            <ProductionPlanCard key={plan.id} plan={plan} />
+            <ProductionPlanCard
+              key={plan.id}
+              plan={plan}
+              updatePlanStatus={updatePlanStatus}
+              deletePlan={deletePlan}
+            />
           ))}
         </div>
       )}
