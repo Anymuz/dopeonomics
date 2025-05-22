@@ -1,20 +1,31 @@
 // src/components/ProductionPlanning/ProductionPlanningContainer.jsx
+import useProductionPlans from '@hooks/productionPlansHook';
+import useStrains from '@hooks/strainsHook';
 import ProductionPlanningTab from './ProductionPlanningTab';
-import { useProductionPlans, useIngredients } from '@hooks';
-import { calculateProductionCost } from '@utils/pricing';
 
 const ProductionPlanningContainer = () => {
-  const { productionPlans } = useProductionPlans();
-  const { ingredients } = useIngredients();
+  const {
+    productionPlans,
+    addPlan,
+    updatePlanStatus,
+    deletePlan,
+  } = useProductionPlans();
 
-  // Simulate ingredient mapping per strain (real logic should link plans to ingredient sets)
-  const enrichedPlans = productionPlans.map((plan) => {
-    const relatedIngredients = ingredients.filter((ing) => ing.strain === plan.strainName);
-    const productionCost = calculateProductionCost(relatedIngredients);
-    return { ...plan, productionCost };
-  });
+  const { strains } = useStrains();
 
-  return <ProductionPlanningTab productionPlans={enrichedPlans} />;
+  return (
+    <ProductionPlanningTab
+      productionPlans={productionPlans}
+      addPlan={addPlan}
+      // updatePlanStatus={updatePlanStatus}
+      //deletePlan={deletePlan}
+      strains={strains}
+      plans={productionPlans}
+      onStart={updatePlanStatus}
+      onComplete={(id) => updatePlanStatus(id, 'Completed')}
+      onDelete={deletePlan}
+/>
+  )
 };
 
 export default ProductionPlanningContainer;

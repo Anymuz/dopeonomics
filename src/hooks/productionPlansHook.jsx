@@ -2,10 +2,13 @@
 import useGameStore from '@/stores/GameStore';
 
 const useProductionPlans = () => {
-  const productionPlans = useGameStore((state) => state.productionPlans);
-  const setProductionPlans = useGameStore((state) => state.setProductionPlans);
-  const resetProductionPlans = useGameStore((state) => state.resetProductionPlans);
-  return { productionPlans, setProductionPlans, resetProductionPlans };
+  return {
+    productionPlans: useGameStore((s) => s.productionPlans),
+    setProductionPlans: useGameStore((s) => s.setProductionPlans),
+    addPlan: useGameStore((s) => s.addPlan),
+    updatePlanStatus: useGameStore((s) => s.updatePlanStatus),
+    deletePlan: useGameStore((s) => s.deletePlan),
+  };
 };
 
 export default useProductionPlans;
