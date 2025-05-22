@@ -5,12 +5,12 @@ import { calculateProductionCost, calculateRecommendedPrice } from '@/utils/pric
 export const createProductionPlansSlice = (set, get) => ({
   productionPlans: [],
 
-  setProductionPlans: (plans) =>
+  setProductionPlans: (plans) => // Keep while loadStartupData uses it
     set(() => ({
       productionPlans: plans,
     })),
 
-  addPlan: (plan) => {
+  addPlan: (plan) => { // remove when confirmed deprecated
     const enrichedPlan = {
       ...plan,
       totalCost: calculateProductionCost(plan.ingredients, plan.batchSize),
@@ -21,10 +21,10 @@ export const createProductionPlansSlice = (set, get) => ({
     }));
   },
 
-  updatePlanStatus: (id, status) =>
+  updatePlanStatus: (id, status, patch = {}) =>
     set((state) => ({
       productionPlans: state.productionPlans.map((plan) =>
-        plan.id === id ? { ...plan, status } : plan
+        plan.id === id ? { ...plan, status, ...patch } : plan
       ),
     })),
 

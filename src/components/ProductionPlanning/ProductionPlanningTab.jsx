@@ -1,57 +1,48 @@
-// src/components/ProductionPlanning/ProductionPlanningTab.jsx
-import { useState } from 'react';
+// src/components/Production/ProductionPlanningTab.jsx
+import React, { useState } from 'react';
 import ProductionPlanCard from './ProductionPlanCard';
 import ProductionCreationModal from './ProductionCreationModal';
+import useStrains from '@hooks/strainsHook';
+//import useProductionPlans from '@hooks/productionPlansHook';
 
-const ProductionPlanningTab = ({
-  productionPlans,
-  addPlan,
-  //updatePlanStatus,
-  //deletePlan,
-  onStart,
-  onComplete,
-  onDelete,
-  strains,
-}) => {
+const ProductionPlanningTab = ({ plans, onUpdate, addPlan, onAdvance, onDelete }) => {
   const [showModal, setShowModal] = useState(false);
+  const { strains } = useStrains();
+ // const { addPlan } = useProductionPlans(); // Optional if not injected via props
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Production Plans</h2>
+    <div className="p-4">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold">Production Plans</h2>
         <button
-          className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
           onClick={() => setShowModal(true)}
+          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
         >
-          Add New Plan
+          + New Plan
         </button>
       </div>
+
+      {plans.length === 0 ? (
+        <p className="text-gray-500 text-sm">No production plans yet.</p>
+      ) : (
+        plans.map((plan) => (
+          <ProductionPlanCard
+            key={plan.id}
+            plan={plan}
+            addPlan={addPlan}
+            onUpdate={onUpdate}
+            onAdvance={onAdvance}
+            onDelete={onDelete}
+          />
+        ))
+      )}
 
       {showModal && (
         <ProductionCreationModal
           onClose={() => setShowModal(false)}
-          strains={strains}
           addPlan={addPlan}
+          strains={strains}
         />
-      )}
-
-      {productionPlans.length === 0 ? (
-        <p className="text-gray-500">No production plans created yet.</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {productionPlans.map((plan) => (
-            <ProductionPlanCard
-              key={plan.id}
-              plan={plan}
-              //updatePlanStatus={updatePlanStatus}
-              //deletePlan={deletePlan}
-              onStart={() => onStart(plan.id, 'In Progress')}
-              onComplete={onComplete}
-              onDelete={onDelete}
-            />
-          
-          ))}
-        </div>
       )}
     </div>
   );
