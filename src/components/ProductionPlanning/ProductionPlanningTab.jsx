@@ -6,8 +6,11 @@ import ProductionCreationModal from './ProductionCreationModal';
 const ProductionPlanningTab = ({
   productionPlans,
   addPlan,
-  updatePlanStatus,
-  deletePlan,
+  //updatePlanStatus,
+  //deletePlan,
+  onStart,
+  onComplete,
+  onDelete,
   strains,
 }) => {
   const [showModal, setShowModal] = useState(false);
@@ -40,9 +43,13 @@ const ProductionPlanningTab = ({
             <ProductionPlanCard
               key={plan.id}
               plan={plan}
-              updatePlanStatus={updatePlanStatus}
-              deletePlan={deletePlan}
+              //updatePlanStatus={updatePlanStatus}
+              //deletePlan={deletePlan}
+              onStart={() => onStart(plan.id, 'In Progress')}
+              onComplete={onComplete}
+              onDelete={onDelete}
             />
+          
           ))}
         </div>
       )}

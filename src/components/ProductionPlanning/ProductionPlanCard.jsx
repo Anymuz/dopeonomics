@@ -1,43 +1,46 @@
-// src/components/ProductionPlanning/ProductionPlanCard.jsx
-const ProductionPlanCard = ({ plan, updatePlanStatus, deletePlan }) => {
-  const handleStart = () => updatePlanStatus(plan.id, 'In Progress');
-  const handleComplete = () => updatePlanStatus(plan.id, 'Completed');
-  const handleDelete = () => deletePlan(plan.id);
+// src/components/Production/ProductionPlanCard.jsx
+import React from 'react';
 
+const ProductionPlanCard = ({ plan, onStart, onComplete, onDelete }) => {
   return (
-    <div className="p-4 border border-gray-300 rounded-md shadow-sm bg-white">
-      <div className="font-bold text-lg mb-1">{plan.name}</div>
-      <div className="text-sm text-gray-600 mb-2">{plan.description || 'No description provided.'}</div>
+    <div className="border p-4 rounded bg-white shadow-sm mb-4">
+      <h3 className="text-lg font-bold mb-1">{plan.name}</h3>
+      <p className="text-sm text-gray-600 mb-1">Drug Type: {plan.drugType}</p>
+      <p className="text-sm text-gray-600 mb-1">Effects: {plan.effects?.join(', ') || 'None'}</p>
+      <p className="text-sm text-gray-600 mb-1">Quantity: {plan.plannedQuantity}</p>
+      <p className="text-sm text-gray-600 mb-1">
+        Total Cost: {typeof plan.totalCost === 'number' ? `$${plan.totalCost.toFixed(2)}` : 'N/A'}
+      </p>
+      <p className="text-sm text-gray-600 mb-3">
+        Expected Sale: {typeof plan.salePrice === 'number' ? `$${plan.salePrice.toFixed(2)}` : 'N/A'}
+      </p>
 
-      <div className="flex justify-between text-sm text-gray-500 mb-2">
-        <div><strong>Type:</strong> {plan.drugType}</div>
-        <div><strong>Batch Size:</strong> {plan.batchSize}</div>
-        <div><strong>Status:</strong> {plan.status}</div>
-      </div>
-
-      <div className="flex gap-2">
-        {plan.status === 'Planned' && (
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium text-gray-700">Status: {plan.status}</span>
+        <div className="flex gap-2">
+          {plan.status === 'Planned' && (
+            <button
+              onClick={() => onStart(plan.id)}
+              className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+            >
+              Start
+            </button>
+          )}
+          {plan.status === 'In Progress' && (
+            <button
+              onClick={() => onComplete(plan.id)}
+              className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700"
+            >
+              Complete
+            </button>
+          )}
           <button
-            className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-            onClick={handleStart}
+            onClick={() => onDelete(plan.id)}
+            className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
           >
-            Start
+            Delete
           </button>
-        )}
-        {plan.status === 'In Progress' && (
-          <button
-            className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
-            onClick={handleComplete}
-          >
-            Complete
-          </button>
-        )}
-        <button
-          className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-          onClick={handleDelete}
-        >
-          Delete
-        </button>
+        </div>
       </div>
     </div>
   );

@@ -17,11 +17,15 @@ const ProductionPlanningContainer = () => {
     <ProductionPlanningTab
       productionPlans={productionPlans}
       addPlan={addPlan}
-      updatePlanStatus={updatePlanStatus}
-      deletePlan={deletePlan}
+      // updatePlanStatus={updatePlanStatus}
+      //deletePlan={deletePlan}
       strains={strains}
-    />
-  );
+      plans={productionPlans}
+      onStart={updatePlanStatus}
+      onComplete={(id) => updatePlanStatus(id, 'Completed')}
+      onDelete={deletePlan}
+/>
+  )
 };
 
 export default ProductionPlanningContainer;
