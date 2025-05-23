@@ -1,6 +1,4 @@
 // src/stores/slices/index.js
-export { createSeedsSlice } from './seedsSlice';
-export { createIngredientsSlice } from './ingredientsSlice';
 export { createMixesSlice } from './mixesSlice';
 export { createProductionPlansSlice } from './productionPlansSlice';
 export { createSalesSlice } from './salesSlice';
