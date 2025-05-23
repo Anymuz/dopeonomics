@@ -19,7 +19,7 @@ export const seedTypes = [
   { name: 'Heavenly Coca Leaves', cost: 210, effect: 'Thought-Provoking', drugType: 'cocaine' }
 ];
 
-/*
+
 export const ingredients = [
     { 
       name: 'Cuke', 
@@ -305,30 +305,7 @@ export const ingredients = [
       ]
     }
 ];
-*/
 
-export const ingredients = [
-  { id: 1, name: 'Cuke', cost: 2, emoji: '🥤', defaultEffect: 'Energizing' },
-  { id: 2, name: 'Banana', cost: 2, emoji: '🍌', defaultEffect: 'Gingeritis' },
-  { id: 3, name: 'Paracetamol', cost: 3, emoji: '⚪', defaultEffect: 'Sneaky' },
-  { id: 4, name: 'Donut', cost: 3, emoji: '🍩', defaultEffect: 'Calorie-Dense' },
-  { id: 5, name: 'Viagra', cost: 4, emoji: '🍆', defaultEffect: 'Tropic Thunder' },
-  { id: 6, name: 'Mouth Wash', cost: 4, emoji: '💧', defaultEffect: 'Balding' },
-  { id: 7, name: 'Flu Medicine', cost: 5, emoji: '🍇', defaultEffect: 'Sedating' },
-  { id: 8, name: 'Gasoline', cost: 5, emoji: '⛽', defaultEffect: 'Toxic' },
-  { id: 9, name: 'Energy Drink', cost: 6, emoji: '🐂', defaultEffect: 'Athletic' },
-  { id: 10, name: 'Motor Oil', cost: 6, emoji: '🛢️', defaultEffect: 'Slippery' },
-  { id: 11, name: 'Mega Bean', cost: 7, emoji: '🫛', defaultEffect: 'Foggy' },
-  { id: 12, name: 'Chili', cost: 7, emoji: '🌶️', defaultEffect: 'Spicy' },
-  { id: 13, name: 'Battery', cost: 8, emoji: '🔋', defaultEffect: 'Bright-Eyed' },
-  { id: 14, name: 'Iodine', cost: 8, emoji: '🟠', defaultEffect: 'Jennerising' },
-  { id: 15, name: 'Addy', cost: 9, emoji: '💊', defaultEffect: 'Thought-Provoking' },
-  { id: 16, name: 'Horse Semen', cost: 9, emoji: '🐴', defaultEffect: 'Long-Faced' },
-  { id: 17, name: 'Glass Shards', cost: 10, emoji: '🔍', defaultEffect: 'Explosive' },
-  { id: 18, name: 'Blue Food Coloring', cost: 12, emoji: '🔵', defaultEffect: 'Glowing' },
-  { id: 19, name: 'Baking Soda', cost: 8, emoji: '🧂', defaultEffect: 'Euphoric' },
-  { id: 20, name: 'Caffeine Powder', cost: 15, emoji: '☕', defaultEffect: 'Energizing' }
-];
 // For backwards compatibility with existing code
 export const additiveEffects = ingredients.reduce((acc, ingredient) => {
   acc[ingredient.name] = ingredient.defaultEffect;

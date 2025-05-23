@@ -50,7 +50,7 @@ export const createSettingsSlice = (set, get) => ({
       currentMix: null,
       selectedDrugType: 'weed',
       selectedSeed: null,
-      priceSettings: { salePrice: 0, targetMargin: '', priceMultiplier: 1, packagingType: 'baggies' },
+      priceSettings: { salePrice: 0, targetMargin: 0.5, priceMultiplier: 1, packagingType: 'baggies' },
     },
   }),
 });

@@ -1,23 +1,20 @@
-// src/hooks/settingsHook.jsx
 import useGameStore from '@stores/GameStore';
 
 const useSettings = () => {
-  const activeTab = useGameStore((state) => state.settings.activeTab);
+  const settings = useGameStore((state) => state.settings);
   const setActiveTab = useGameStore((state) => state.setActiveTab);
-
-  const selectedDrugType = useGameStore((state) => state.settings.selectedDrugType);
   const setSelectedDrugType = useGameStore((state) => state.setSelectedDrugType);
-
-  const selectedSeed = useGameStore((state) => state.settings.selectedSeed);
   const setSelectedSeed = useGameStore((state) => state.setSelectedSeed);
+  const updateSettings = useGameStore((state) => state.updateSettings);
+  const setSettings = useGameStore((state) => state.setSettings);
 
   return {
-    activeTab,
+    ...settings,
     setActiveTab,
-    selectedDrugType,
     setSelectedDrugType,
-    selectedSeed,
     setSelectedSeed,
+    updateSettings,
+    setSettings,
   };
 };
 
