@@ -3,7 +3,9 @@ import React from 'react';
 import DrugTypeSelector from './DrugTypeSelector';
 import SeedSelector from './SeedSelector';
 import SequentialIngredientsSelector from './SequentialIngredientsSelector';
-import CurrentMixDisplay from './CurrentMixDisplay';
+import CurrentMixDisplay from './MixDisplay/CurrentMixDisplay';
+import MixingHistoryDisplay from './MixDisplay/MixingHistoryDisplay';
+import MixSummaryDisplay from './MixDisplay/MixSummaryDisplay';
 import PackagingSelector from './PackagingSelector';
 import PriceMarginInputs from './ProfitComponents/PriceMarginInputs';
 import ProfitInfoDisplay from './ProfitComponents/ProfitInfoDisplay';
@@ -70,6 +72,15 @@ const StrainCreatorTab = ({
         currentEffects={currentEffects}
         calculateTotalCost={getTotalCost}
         drugTypes={drugTypes}
+      />
+
+      <MixingHistoryDisplay mixingHistory={mixingHistory} />
+
+      <MixSummaryDisplay
+        selectedSeed={selectedSeed}
+        currentMix={currentMix}
+        currentEffects={currentEffects}
+        getTotalCost={getTotalCost}
       />
 
       <PackagingSelector

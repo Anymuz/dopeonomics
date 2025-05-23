@@ -1,10 +1,10 @@
 // src/components/StrainCreator/StrainCreatorContainer.jsx
-/* eslint-disable react-hooks/exhaustive-deps  */
 /* eslint-disable no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import StrainCreatorTab from './StrainCreatorTab';
 import { useMixes, useSettings } from '@hooks';
-import { drugTypes, seedTypes, ingredients } from '@data/straindata';
+import { drugTypes, seedTypes, ingredients as staticIngredients } from '@data/straindata';
 import {
   calculateRecommendedPrice,
   calculateProfit,
@@ -17,6 +17,7 @@ const StrainCreatorContainer = () => {
   const { selectedDrugType, setSelectedDrugType, selectedSeed, setSelectedSeed } = useSettings();
   const { mixes, addMix } = useMixes();
 
+  const [ingredients] = useState(staticIngredients);
   const [currentMix, setCurrentMix] = useState([]);
   const [mixingHistory, setMixingHistory] = useState([]);
   const [currentEffects, setCurrentEffects] = useState([]);
@@ -25,14 +26,19 @@ const StrainCreatorContainer = () => {
   const [salePrice, setSalePrice] = useState(0);
   const [targetMargin, setTargetMargin] = useState(0.5);
 
+  // Seed selection initializes base effects and step 0
   useEffect(() => {
-    if (selectedSeed && currentMix.length === 0) {
-      setCurrentEffects([selectedSeed.effect]);
+    if (selectedSeed) {
+      const baseEffect = [selectedSeed.effect];
+      setCurrentEffects(baseEffect);
+      setMixingHistory([[...baseEffect]]); // Always reset with Step 0
+      setCurrentMix([]);
     }
   }, [selectedSeed]);
 
+  // Update price when effects or seed change
   useEffect(() => {
-    if (selectedDrugType && selectedSeed) {
+    if (selectedDrugType && selectedSeed && currentEffects.length) {
       const recommended = calculateRecommendedPrice(currentEffects, selectedDrugType);
       if (recommended !== salePrice) {
         setSalePrice(recommended);
@@ -40,6 +46,7 @@ const StrainCreatorContainer = () => {
     }
   }, [currentEffects, selectedDrugType, selectedSeed]);
 
+  // Update margin when price changes
   useEffect(() => {
     if (salePrice > 0 && selectedSeed) {
       const margin = calculateProfitMargin(salePrice, selectedSeed, currentMix);
@@ -50,12 +57,11 @@ const StrainCreatorContainer = () => {
   const addIngredient = (ingredient) => {
     const newMix = [...currentMix, ingredient];
     const prevEffects = [...currentEffects];
-    const interactions = ingredient.interactions || [];
     const newEffects = [...prevEffects];
 
-    interactions.forEach(({ if: triggerEffect, replaceWith }) => {
-      const index = newEffects.indexOf(triggerEffect);
-      if (index !== -1) newEffects[index] = replaceWith;
+    (ingredient.interactions || []).forEach(({ if: trigger, replaceWith }) => {
+      const idx = newEffects.indexOf(trigger);
+      if (idx !== -1) newEffects[idx] = replaceWith;
     });
 
     if (!newEffects.includes(ingredient.defaultEffect)) {
@@ -63,21 +69,31 @@ const StrainCreatorContainer = () => {
     }
 
     setCurrentMix(newMix);
-    setMixingHistory([...mixingHistory, prevEffects]);
+    setMixingHistory([...mixingHistory, [...newEffects]]);
     setCurrentEffects(newEffects);
   };
 
   const removeLastIngredient = () => {
-    setCurrentMix(currentMix.slice(0, -1));
-    const previousEffects = mixingHistory[mixingHistory.length - 1] || [];
-    setMixingHistory(mixingHistory.slice(0, -1));
-    setCurrentEffects(previousEffects);
+    const updatedMix = currentMix.slice(0, -1);
+    const updatedHistory = mixingHistory.slice(0, -1);
+    const restoredEffects = updatedHistory[updatedHistory.length - 1] || [];
+
+    setCurrentMix(updatedMix);
+    setMixingHistory(updatedHistory);
+    setCurrentEffects(restoredEffects);
   };
 
   const resetMix = () => {
+    if (selectedSeed) {
+      const base = [selectedSeed.effect];
+      setCurrentEffects(base);
+      setMixingHistory([[...base]]);
+    } else {
+      setCurrentEffects([]);
+      setMixingHistory([]);
+    }
+
     setCurrentMix([]);
-    setMixingHistory([]);
-    setCurrentEffects([]);
   };
 
   const finalizeMix = () => {
@@ -92,7 +108,7 @@ const StrainCreatorContainer = () => {
       effects: currentEffects,
       packagingType,
       salePrice,
-      totalCost: getTotalCost(),
+      totalCost: getTotalCost()
     };
 
     addMix(mix);
@@ -101,25 +117,25 @@ const StrainCreatorContainer = () => {
   };
 
   const getTotalCost = () => {
-    const cost = selectedSeed ? selectedSeed.cost : 0;
-    const total = currentMix.reduce((sum, i) => sum + (i.cost || 0), 0);
-    return cost + total;
+    const baseCost = selectedSeed ? selectedSeed.cost : 0;
+    const ingredientCost = currentMix.reduce((sum, i) => sum + (i.cost || 0), 0);
+    return baseCost + ingredientCost;
   };
 
   const getProfit = () => calculateProfit(salePrice, selectedSeed, currentMix);
   const getProfitMargin = () => calculateProfitMargin(salePrice, selectedSeed, currentMix);
   const getTotalBatchProfit = () => calculateTotalBatchProfit(salePrice, selectedSeed, currentMix, priceMultiplier);
   const getPackagingProfit = () => calculatePackagingProfit(salePrice, selectedSeed, currentMix, packagingType);
-  //console.log('[HISTORY]', mixingHistory)
+
   return (
     <StrainCreatorTab
       drugTypes={drugTypes}
       seedTypes={seedTypes}
-      ingredients={ingredients}
       selectedDrugType={selectedDrugType}
       onSelectDrugType={setSelectedDrugType}
       selectedSeed={selectedSeed}
       setSelectedSeed={setSelectedSeed}
+      ingredients={ingredients}
       currentMix={currentMix}
       mixingHistory={mixingHistory}
       currentEffects={currentEffects}

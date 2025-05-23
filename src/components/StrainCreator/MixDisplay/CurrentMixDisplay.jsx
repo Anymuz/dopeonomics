@@ -1,6 +1,4 @@
-// src/components/StrainCreator/CurrentMixDisplay.jsx
-import React from 'react';
-
+// src/components/StrainCreator/MixDisplay/CurrentMixDisplay.jsx
 const CurrentMixDisplay = ({
   selectedSeed,
   currentMix,
