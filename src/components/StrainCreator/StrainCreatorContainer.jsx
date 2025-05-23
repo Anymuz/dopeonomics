@@ -82,7 +82,7 @@ const StrainCreatorContainer = () => {
     }
 
     setCurrentMix(newMix);
-    setMixingHistory([...mixingHistory, prevEffects]);
+    setMixingHistory([...mixingHistory, [...newEffects]]); // FIXED LINE
     setCurrentEffects(newEffects);
   };
 
