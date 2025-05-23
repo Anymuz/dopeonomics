@@ -3,6 +3,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import StrainCreatorTab from './StrainCreatorTab';
+import NamePromptModal from './NamePromptModal';
 import { useMixes, useSettings } from '@hooks';
 import { drugTypes, seedTypes, ingredients as staticIngredients } from '@data/straindata';
 import {
@@ -25,6 +26,8 @@ const StrainCreatorContainer = () => {
   const [priceMultiplier, setPriceMultiplier] = useState(1);
   const [salePrice, setSalePrice] = useState(0);
   const [targetMargin, setTargetMargin] = useState(0.5);
+  const [isNamingModalOpen, setIsNamingModalOpen] = useState(false);
+  const [pendingMix, setPendingMix] = useState(null);
 
   // Seed selection initializes base effects and step 0
   useEffect(() => {
@@ -57,19 +60,29 @@ const StrainCreatorContainer = () => {
   const addIngredient = (ingredient) => {
     const newMix = [...currentMix, ingredient];
     const prevEffects = [...currentEffects];
-    const newEffects = [...prevEffects];
+    const interactions = ingredient.interactions || [];
+    let newEffects = [...prevEffects];
 
-    (ingredient.interactions || []).forEach(({ if: trigger, replaceWith }) => {
-      const idx = newEffects.indexOf(trigger);
-      if (idx !== -1) newEffects[idx] = replaceWith;
+    // Apply interactions
+    interactions.forEach(({ if: triggerEffect, replaceWith }) => {
+      const index = newEffects.indexOf(triggerEffect);
+      if (index !== -1) {
+        newEffects[index] = replaceWith;
+      }
     });
 
+    // Add default effect only if not present and within limit
     if (!newEffects.includes(ingredient.defaultEffect)) {
       newEffects.push(ingredient.defaultEffect);
     }
 
+    // Cap at 8 effects
+    if (newEffects.length > 8) {
+      newEffects = newEffects.slice(0, 8);
+    }
+
     setCurrentMix(newMix);
-    setMixingHistory([...mixingHistory, [...newEffects]]);
+    setMixingHistory([...mixingHistory, prevEffects]);
     setCurrentEffects(newEffects);
   };
 
@@ -97,21 +110,25 @@ const StrainCreatorContainer = () => {
   };
 
   const finalizeMix = () => {
-    if (!selectedSeed || currentMix.length === 0 || salePrice <= 0) return;
-
-    const mix = {
+  if (!selectedSeed || currentMix.length === 0 || salePrice <= 0) return;
+    setPendingMix({
       id: Date.now(),
-      name: selectedSeed.name,
       seed: selectedSeed,
       drugType: selectedDrugType,
       ingredients: currentMix,
       effects: currentEffects,
       packagingType,
       salePrice,
-      totalCost: getTotalCost()
-    };
+      totalCost: getTotalCost(),
+    });
+    setIsNamingModalOpen(true);
+  };
 
-    addMix(mix);
+  const handleConfirmName = (name) => {
+    const mixToSave = { ...pendingMix, name };
+    addMix(mixToSave);
+    setIsNamingModalOpen(false);
+    setPendingMix(null);
     resetMix();
     setSelectedSeed(null);
   };
@@ -128,35 +145,43 @@ const StrainCreatorContainer = () => {
   const getPackagingProfit = () => calculatePackagingProfit(salePrice, selectedSeed, currentMix, packagingType);
 
   return (
-    <StrainCreatorTab
-      drugTypes={drugTypes}
-      seedTypes={seedTypes}
-      selectedDrugType={selectedDrugType}
-      onSelectDrugType={setSelectedDrugType}
-      selectedSeed={selectedSeed}
-      setSelectedSeed={setSelectedSeed}
-      ingredients={ingredients}
-      currentMix={currentMix}
-      mixingHistory={mixingHistory}
-      currentEffects={currentEffects}
-      packagingType={packagingType}
-      setPackagingType={setPackagingType}
-      salePrice={salePrice}
-      setSalePrice={setSalePrice}
-      priceMultiplier={priceMultiplier}
-      setPriceMultiplier={setPriceMultiplier}
-      targetMargin={targetMargin}
-      setTargetMargin={setTargetMargin}
-      addIngredient={addIngredient}
-      removeLastIngredient={removeLastIngredient}
-      resetMix={resetMix}
-      finalizeMix={finalizeMix}
-      getTotalCost={getTotalCost}
-      getProfit={getProfit}
-      getProfitMargin={getProfitMargin}
-      getTotalBatchProfit={getTotalBatchProfit}
-      getPackagingProfit={getPackagingProfit}
-    />
+    <>
+      <StrainCreatorTab
+        drugTypes={drugTypes}
+        seedTypes={seedTypes}
+        selectedDrugType={selectedDrugType}
+        onSelectDrugType={setSelectedDrugType}
+        selectedSeed={selectedSeed}
+        setSelectedSeed={setSelectedSeed}
+        ingredients={ingredients}
+        currentMix={currentMix}
+        mixingHistory={mixingHistory}
+        currentEffects={currentEffects}
+        packagingType={packagingType}
+        setPackagingType={setPackagingType}
+        salePrice={salePrice}
+        setSalePrice={setSalePrice}
+        priceMultiplier={priceMultiplier}
+        setPriceMultiplier={setPriceMultiplier}
+        targetMargin={targetMargin}
+        setTargetMargin={setTargetMargin}
+        addIngredient={addIngredient}
+        removeLastIngredient={removeLastIngredient}
+        resetMix={resetMix}
+        finalizeMix={finalizeMix}
+        getTotalCost={getTotalCost}
+        getProfit={getProfit}
+        getProfitMargin={getProfitMargin}
+        getTotalBatchProfit={getTotalBatchProfit}
+        getPackagingProfit={getPackagingProfit}
+      />
+
+      <NamePromptModal
+        isOpen={isNamingModalOpen}
+        onClose={() => setIsNamingModalOpen(false)}
+        onConfirm={handleConfirmName}
+      />
+    </>
   );
 };
 
