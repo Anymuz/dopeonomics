@@ -3,7 +3,6 @@ import DopeyHeader from './components/DopeyHeader.jsx';
 import NavigationTabsContainer from './components/NavigationTabs/NavigationTabsContainer.jsx';
 import ActiveTabRender from './components/NavigationTabs/ActiveTabRender.jsx';
 import { useEffect } from 'react';
-import useStartupSeeding from '@hooks/loadStartupData'; // ✅ Import just the hook
 
 function App() {
   // Set document title when component mounts
@@ -11,7 +10,6 @@ function App() {
     document.title = "Dopeonomics Vite";
   }, []);
 
-  useStartupSeeding();
 
   return (
     <div className="App flex flex-col min-h-screen">

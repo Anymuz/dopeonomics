@@ -1,8 +1,6 @@
-// src/stores/slices/mixesSlice.jsx
+// src/stores/slices/mixesSlice.js
 export const createMixesSlice = (set) => ({
-    mixes: [],
-  
-    setMixes: (newMixes) => set({ mixes: newMixes }),
-  
-    resetMixes: () => set({ mixes: [] }),
-  });
+  mixes: [],
+  addMix: (mix) => set((state) => ({ mixes: [...state.mixes, mix] })),
+  resetMixes: () => set(() => ({ mixes: [] })),
+});

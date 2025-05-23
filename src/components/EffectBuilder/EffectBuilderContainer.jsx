@@ -1,10 +1,10 @@
 // src/components/EffectBuilder/EffectBuilderContainer.jsx
 import { useState, useMemo } from 'react';
 import EffectBuilderTab from './EffectBuilderTab';
-import { useIngredients } from '@hooks';
+import { ingredients } from '@data/straindata';
 
 const EffectBuilderContainer = () => {
-  const { ingredients } = useIngredients();
+  //const { ingredients } = useIngredients();
   const [selectedIngredientIds, setSelectedIngredientIds] = useState([]);
 
   const selectedIngredients = ingredients.filter((ing) => selectedIngredientIds.includes(ing.id));

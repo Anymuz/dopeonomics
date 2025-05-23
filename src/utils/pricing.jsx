@@ -51,20 +51,19 @@ export const calculateEffectMultiplier = (currentEffects) => {
   }, 0);
 };
 
-// Calculate recommended price based on drug type and effects
-export const calculateRecommendedPrice = ({ effects = [], quality = 'Medium' }) => {
-  const basePrice = 35;
-
-  const qualityModifier = {
-    Low: 0.8,
-    Medium: 1.0,
-    High: 1.2,
-  }[quality] || 1.0;
-
-  const effectBonus = effects.length * 0.1; // each effect adds 10%
-  const effectMultiplier = 1 + effectBonus;
-
-  return Math.floor(basePrice * qualityModifier * effectMultiplier);
+export const calculateRecommendedPrice = (effects, productType = 'Weed') => {
+  // Add safety check for effects
+  if (!effects || !Array.isArray(effects)) {
+    effects = [];
+  }
+  
+  // Get base price based on drug type
+  const basePrice = productType === 'Weed' ? 35 : 
+                    productType === 'Meth' ? 70 : 
+                    productType === 'Cocaine' ? 90 : 35;
+  
+  const effectMultiplier = calculateEffectMultiplier(effects);
+  return Math.round(basePrice * (1 + effectMultiplier));
 };
 
 // Calculate total yield units based on drug type

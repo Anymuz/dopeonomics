@@ -3,8 +3,6 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import {
-  createSeedsSlice,
-  createIngredientsSlice,
   createMixesSlice,
   createProductionPlansSlice,
   createSalesSlice,
@@ -23,8 +21,6 @@ import {
 const useGameStore = create(
   persist(
     (set, get) => ({
-      ...createSeedsSlice(set, get),
-      ...createIngredientsSlice(set, get),
       ...createMixesSlice(set, get),
       ...createProductionPlansSlice(set, get),
       ...createSalesSlice(set, get),
@@ -43,8 +39,6 @@ const useGameStore = create(
       name: 'dopey_game_store',
       getStorage: () => localStorage,
       partialize: (state) => ({
-        seeds: state.seeds,
-        ingredients: state.ingredients,
         mixes: state.mixes,
         productionPlans: state.productionPlans,
         dailySales: state.dailySales,
