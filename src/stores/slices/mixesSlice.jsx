@@ -2,5 +2,6 @@
 export const createMixesSlice = (set) => ({
   mixes: [],
   addMix: (mix) => set((state) => ({ mixes: [...state.mixes, mix] })),
+  setMixes: (mixes) => set({ mixes }),
   resetMixes: () => set(() => ({ mixes: [] })),
 });
