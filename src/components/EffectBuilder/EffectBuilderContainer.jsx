@@ -1,41 +1,72 @@
-// src/components/EffectBuilder/EffectBuilderContainer.jsx
-import { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import EffectBuilderTab from './EffectBuilderTab';
-import { ingredients } from '@data/straindata';
+import { seedTypes, ingredients, effectColors, drugTypes } from '@data/straindata';
+import { searchSolutions, calculateEffectMatchPercentage } from '@utils/effectSolver';
 
 const EffectBuilderContainer = () => {
-  //const { ingredients } = useIngredients();
-  const [selectedIngredientIds, setSelectedIngredientIds] = useState([]);
+  const [selectedEffects, setSelectedEffects] = useState([]);
+  const [selectedDrugType, setSelectedDrugType] = useState('weed');
+  const [effectSearchTerm, setEffectSearchTerm] = useState('');
+  const [effectSortOrder, setEffectSortOrder] = useState('alphabetical');
+  const [effectTypeFilter, setEffectTypeFilter] = useState('all');
 
-  const selectedIngredients = ingredients.filter((ing) => selectedIngredientIds.includes(ing.id));
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchProgress, setSearchProgress] = useState(0);
+  const [solutionFound, setSolutionFound] = useState(false);
+  const [bestSolution, setBestSolution] = useState(null);
+  const [searchResults, setSearchResults] = useState([]);
 
-  const combinedEffects = useMemo(() => {
-    const effects = new Set();
+  const resetSelections = () => {
+    setSelectedEffects([]);
+    setSolutionFound(false);
+    setBestSolution(null);
+    setSearchResults([]);
+    setSearchProgress(0);
+  };
 
-    selectedIngredients.forEach((ingredient) => {
-      const baseEffect = ingredient.defaultEffect;
-      let currentEffect = baseEffect;
-
-      selectedIngredients.forEach((other) => {
-        if (ingredient === other) return;
-        other.interactions?.forEach(({ if: target, replaceWith }) => {
-          if (currentEffect === target) currentEffect = replaceWith;
-        });
-      });
-
-      effects.add(currentEffect);
+  const handleSearch = async () => {
+    if (selectedEffects.length === 0) return;
+    setIsSearching(true);
+    setSearchProgress(0);
+    const result = await searchSolutions({
+      selectedEffects,
+      selectedDrugType,
+      seedTypes,
+      ingredients,
+      setSearchProgress, // ✅ corrected parameter name
     });
 
-    return Array.from(effects);
-  }, [selectedIngredients]);
+    setIsSearching(false);
+    setSolutionFound(result.solutionFound);
+    setBestSolution(result.bestSolution);
+    setSearchResults(result.searchResults);
+    setSearchProgress(100);
+  };
 
   return (
     <EffectBuilderTab
+      selectedEffects={selectedEffects}
+      setSelectedEffects={setSelectedEffects}
+      selectedDrugType={selectedDrugType}
+      setSelectedDrugType={setSelectedDrugType}
+      drugTypes={drugTypes}
+      effectColors={effectColors}
       ingredients={ingredients}
-      selectedIngredientIds={selectedIngredientIds}
-      setSelectedIngredientIds={setSelectedIngredientIds}
-      selectedIngredients={selectedIngredients}
-      combinedEffects={combinedEffects}
+      seedTypes={seedTypes}
+      effectSearchTerm={effectSearchTerm}
+      setEffectSearchTerm={setEffectSearchTerm}
+      effectSortOrder={effectSortOrder}
+      setEffectSortOrder={setEffectSortOrder}
+      effectTypeFilter={effectTypeFilter}
+      setEffectTypeFilter={setEffectTypeFilter}
+      handleSearch={handleSearch}
+      resetSelections={resetSelections}
+      isSearching={isSearching}
+      searchProgress={searchProgress}
+      solutionFound={solutionFound}
+      bestSolution={bestSolution}
+      searchResults={searchResults}
+      calculateEffectMatchPercentage={calculateEffectMatchPercentage}
     />
   );
 };
