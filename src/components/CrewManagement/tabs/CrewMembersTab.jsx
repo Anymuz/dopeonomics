@@ -1,75 +1,76 @@
-// src/components/Crew/CrewMembersTab.jsx
-import React from 'react';
-import { useCrew } from '@/hooks';
+// src/components/CrewManagement/tabs/CrewMembersTab.jsx
+import { calculateDailyCost } from '@/utils/crewMetrics';
+import PersonalSalesForm from '@components/SharedComponents/Forms/PersonalSalesForm.jsx'
+import { Plus, Minus } from 'lucide-react';
 
-const CrewMembersTab = () => {
-  const {
-    crewTypes,
-    crewCounts,
-    hireMember,
-    fireMember,
-    calculateDailyCost,
-    calculateTotalCrewCount,
-    calculateWeeklyCost,
-    calculateMonthlyCost
-  } = useCrew();
-
+const CrewMembersTab = ({addPersonalSale, adjustCrewCount, crew, crewCosts}) => {
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {crewTypes.map((type) => {
-          const count = crewCounts[type.id] || 0;
-          const totalDaily = count * type.dailyCost;
-
-          return (
-            <div key={type.id} className="border rounded-lg p-4 shadow-sm">
-              <div className="flex justify-between items-center mb-2">
-                <h3 className="text-lg font-semibold">{type.name}</h3>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => fireMember(type.id)}
-                    className="bg-red-100 text-red-700 px-2 rounded hover:bg-red-200"
-                  >
-                    −
-                  </button>
-                  <span className="px-2">{count}</span>
-                  <button
-                    onClick={() => hireMember(type.id)}
-                    className="bg-green-100 text-green-700 px-2 rounded hover:bg-green-200"
-                  >
-                    +
-                  </button>
-                </div>
+        {Object.entries(crewCosts).map(([type, costs]) => (
+          <div key={type} className="bg-white p-4 rounded-lg border border-gray-200">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium text-gray-800 capitalize">{type}s</h3>
+              <div className="flex items-center space-x-1">
+                <button
+                  onClick={() => adjustCrewCount(type, -1)}
+                  className="p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200"
+                  disabled={crew[type] <= 0}
+                >
+                  <Minus className="w-4 h-4" />
+                </button>
+                <span className="w-8 text-center font-medium">{crew[type]}</span>
+                <button
+                  onClick={() => adjustCrewCount(type, 1)}
+                  className="p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
               </div>
-              <ul className="text-sm text-gray-700 space-y-1">
-                <li>Initial Hiring Cost: ${type.initialCost}</li>
-                <li>Daily Cost: ${type.dailyCost}</li>
-                <li className="font-medium">
-                  Current Daily Total: ${totalDaily}
-                </li>
-              </ul>
             </div>
-          );
-        })}
+            <div className="space-y-2 text-sm text-gray-600">
+              <div className="flex justify-between">
+                <span>Initial Hiring Cost:</span>
+                <span className="font-medium">${costs.initial}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Daily Cost:</span>
+                <span className="font-medium">${costs.daily}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Current Daily Total:</span>
+                <span className="font-medium">${costs.daily * crew[type]}</span>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
 
-      <div className="border rounded-lg p-4 shadow-sm bg-gray-50">
-        <h3 className="text-lg font-semibold mb-2">Crew Cost Summary</h3>
-        <ul className="text-sm text-gray-800 space-y-1">
-          <li>
-            <strong>Total Crew Members:</strong> {calculateTotalCrewCount()}
-          </li>
-          <li className="text-red-600">
-            <strong>Daily Crew Cost:</strong> ${calculateDailyCost()}
-          </li>
-          <li className="text-red-600">
-            <strong>Weekly Crew Cost:</strong> ${calculateWeeklyCost()}
-          </li>
-          <li className="text-red-600">
-            <strong>Monthly Crew Cost:</strong> ${calculateMonthlyCost()}
-          </li>
-        </ul>
+      <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+        <h3 className="text-lg font-medium text-gray-800 mb-4">Crew Cost Summary</h3>
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <span>Total Crew Members:</span>
+            <span className="font-medium">
+              {Object.values(crew).reduce((sum, count) => sum + count, 0)}
+            </span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span>Daily Crew Cost:</span>
+            <span className="font-medium text-red-600">${calculateDailyCost(crew)}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span>Weekly Crew Cost:</span>
+            <span className="font-medium text-red-600">${calculateDailyCost(crew) * 7}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span>Monthly Crew Cost:</span>
+            <span className="font-medium text-red-600">${calculateDailyCost(crew) * 30}</span>
+          </div>
+        </div>
       </div>
+
+      <PersonalSalesForm addPersonalSale={addPersonalSale} />
     </div>
   );
 };

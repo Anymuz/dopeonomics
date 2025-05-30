@@ -1,6 +1,6 @@
 // src/stores/slices/crewSlice.jsx
 export const createCrewSlice = (set) => ({
-    crew: [],
+    crew: null,
     setCrew: (newCrew) => set({ crew: newCrew }),
-    resetCrew: () => set({ crew: [] }),
+    resetCrew: () => set({ crew: null }),
   });

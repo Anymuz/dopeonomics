@@ -1,9 +1,10 @@
 // src/stores/slices/dealerTransactionsSlice.js
 
 export const createDealerTransactionsSlice = (set, get) => ({
-    dealerTransactions: [],
-    getDealerTransactions: () => get().dealerTransactions,
-    setDealerTransactions: (tx) => set({ dealerTransactions: tx }),
-    addDealerTransaction: (tx) => set((state) => ({ dealerTransactions: [...state.dealerTransactions, tx] })),
-    resetDealerTransactions: () => set({ dealerTransactions: [] }),
+    transactions: [],
+    getDealerTransactions: () => get().transactions,
+    setDealerTransactions: (tx) => set({ transactions: tx }),
+    addDealerTransaction: (tx) => set((state) => ({ transactions: [...state.transactions, tx] })),
+    resetDealerTransactions: () => set({ transactions: [] }),
 });
+export default createDealerTransactionsSlice;
