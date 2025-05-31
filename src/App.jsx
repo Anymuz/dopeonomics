@@ -1,7 +1,6 @@
-import Footer from './components/Footer.jsx';
-import DopeyHeader from './components/DopeyHeader.jsx';
-import NavigationTabsContainer from './components/NavigationTabs/NavigationTabsContainer.jsx';
-import ActiveTabRender from './components/NavigationTabs/ActiveTabRender.jsx';
+import Footer from '@components/Footer.jsx';
+import DopeyHeader from '@components/DopeyHeader.jsx';
+import ApplicationContainer from '@components/ApplicationContainer.jsx';
 import { useEffect } from 'react';
 
 function App() {
@@ -15,7 +14,7 @@ function App() {
     <div className="App flex flex-col min-h-screen">
       <DopeyHeader />
       <main className="flex-grow">
-        <ActiveTabRender />
+        <ApplicationContainer />
       </main>
       <Footer />
     </div>

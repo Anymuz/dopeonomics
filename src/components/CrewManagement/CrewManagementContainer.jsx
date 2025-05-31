@@ -1,12 +1,12 @@
 // src/components/CrewManagement/CrewManagementContainer.jsx
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import CrewOverviewTab from './tabs/CrewOverviewTab';
 import CrewDealersTab from './tabs/CrewDealersTab';
 import CrewMembersTab from './tabs/CrewMembersTab';
 import CrewTransactionsTab from './tabs/CrewTransactionsTab';
 import CrewManagementNav from './CrewManagementNav';
 import { useDealers, useCrew, useDealerTransactions, useSales } from '@/hooks';
-import { defaultDealers, crewCosts, startCrew } from '@data/crewData';
+import { crewCosts } from '@data/crewData';
 
 const CrewManagementContainer = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -46,23 +46,6 @@ const CrewManagementContainer = () => {
       )
     );
   };
-
-  // Initalise crew object if first time use
-  useEffect(() => {
-    const crewIsInvalid = crew === null || typeof crew !== 'object' || Object.keys(crew).length === 0 || Object.values(crew).some((v) => typeof v !== 'number');
-
-    if (crewIsInvalid) {
-      console.log("Invalid or empty crew detected, initializing with startCrew.");
-      setCrew(startCrew);
-    }
-  }, [crew, setCrew]);
-
-  // Initalise dealers object if first time use
-  useEffect(() => {
-    if (!dealers || dealers.length === 0) {
-      setDealers(defaultDealers);
-    }
-  }, [dealers, setDealers]);
 
   const renderActiveTab = () => {
     switch (activeTab) {
