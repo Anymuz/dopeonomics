@@ -9,6 +9,8 @@ lerna-debug.log*
 
 node_modules
 old
+fubar
+notes
 dist
 dist-ssr
 *.local

@@ -11,18 +11,12 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss()],
-  resolve: {
-    alias: {
-      '@': path.resolve(rootDir, 'src'),
-      '@hooks': path.resolve(rootDir, 'src/hooks'),
-      '@stores': path.resolve(rootDir, 'src/stores'),
-      '@components': path.resolve(rootDir, 'src/components'),
-      '@utils': path.resolve(rootDir, 'src/utils'),          
-      '@assets': path.resolve(rootDir, 'src/assets'),        
-      '@data': path.resolve(rootDir, 'src/data'),  
-      '@pages': path.resolve(rootDir, 'src/pages'),  
-    },
-  },
+resolve: {
+  alias: {
+    '@features': path.resolve(rootDir, 'src/features'),
+    '@shared'  : path.resolve(rootDir, 'src/shared'),
+    '@styles' : path.resolve(rootDir, 'src/styles'), },
+},
   server: {
     port: 3000,
     open: true,

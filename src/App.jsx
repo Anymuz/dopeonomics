@@ -1,20 +1,21 @@
-import Footer from '@components/Footer.jsx';
-import DopeyHeader from '@components/DopeyHeader.jsx';
-import ApplicationContainer from '@components/ApplicationContainer.jsx';
+import Header from '@features/layout/ui/Header';
+import Footer from '@features/layout/ui/Footer';
+import NavigationBar from '@features/layout/ui/NavigationBar';
+import RenderSection from '@features/layout/ui/RenderSection';
 import { useEffect } from 'react';
-
+// Main App component
 function App() {
   // Set document title when component mounts
   useEffect(() => {
     document.title = "Dopeonomics Vite";
   }, []);
 
-
   return (
     <div className="App flex flex-col min-h-screen">
-      <DopeyHeader />
+      <Header />
       <main className="flex-grow">
-        <ApplicationContainer />
+        <NavigationBar />
+        <RenderSection />
       </main>
       <Footer />
     </div>

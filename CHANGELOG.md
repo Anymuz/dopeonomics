@@ -19,23 +19,29 @@ All notable changes to this project will be documented in this file.
 
 ## Iteration 1: Core Infrastructure + Critical Bugs
 
-### - Vite Rebuild
+### Vite Rebuild - Branch: `iteration/1-core-infrastructure/vite-migration`
 - Migrated build system from Create React App (CRA) to Vite
 - Installed and configured Tailwind CSS + PostCSS
 - Cleaned project structure and removed CRA legacy
 - Updated project scripts for Vite
 - Preserved original Dopeonomics core styles
-
-### - Refactor SupplyManagementTab
-- Refactored entire project structure and archetecture for maintainability
-- Installed Zustand libarary and implemented it for all tabs
-- Temporarily using dummy data for prototype reasons
-- Temporarily reverted to basic styles with intent to re-apply once backend stable
-- All Tabs work.
-
-### - Convert productionPlans to use GameStore
-- (to be filled once complete)
-
+#### Pull Request Completed.
+----
+### Full Refactor (ongoing) - Branch: `iteration/1-core-infrastructure/total-rebuild`
+#### *Commit: Base Layout + Work In Progress failsafe*
+  - Began to refactor using modern industry standards
+  - Replaced unessiary large zustand slices and hooks with feature specific stores and hooks
+  - Re-organised directory Structure
+  - Constructed base foundation for app as features/layout to include:
+    - Header
+    - Footer
+    - Navigation Bar 
+    - Render Active Section
+    - Donate 
+    - Settings
+  - Per feature: now use `/data` for constant data, `/hooks` for state mutation, `/models` for Zustand stores, `utils` for stateless helper functions and `/ui` for react components.
+  - Added `maintainence` feature as section to default to when the active tab references a non-existant section. This keeps the app usable as each section is restored and can be used during maintainence futher down the line.
+  - Restored the usage of this neglected changelog.
 ---
 
 ## Iteration 2: Base Planning Setup
