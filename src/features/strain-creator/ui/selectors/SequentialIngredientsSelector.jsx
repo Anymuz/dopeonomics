@@ -2,40 +2,36 @@
 // UI component used in the strain-creator feature.
 // Allows adding one ingredient at a time and shows effects after each step for a dynamic user experience.
 
-// Import functions, data and icon components to facilitate the user interface and user experience:
-// Uses icons from lucide-react for the UI, filterIngredients to filter available ingredients for the drug type,
-// and the effectColors data to style effects.
 import { PlusCircle, CornerDownRight, Check, RotateCcw, Trash2, XCircle, AlertTriangle } from 'lucide-react';
 import { filterIngredients } from '@features/strain-creator/utils/filterIngredients';
 import { effectColors } from '@features/strain-creator/data/effectData';
+import { simulateAddIngredient } from '@features/strain-creator/utils/determineEffects';
 
-// Import custom hooks for managing mixing state, strainSelection state, ingredient selection, and finalizing the mix:
-import useMixing from '@features/strain-creator/hooks/useMixing';
 import useIngredientSelection from '@features/strain-creator/hooks/useIngredientSelection';
 import useFinalizeMix from '@features/strain-creator/hooks/useFinalizeMix';
 import useStrainSelection from '@features/strain-creator/hooks/useStrainSelection';
 
-
-const SequentialIngredientsSelector = () => {
-  // Use custom hooks to get the current mix, effects, selected drug type, mixing history:
-  // Includes functions to manage the mix and the hover effects for ingredients selection.
-  const { currentMix, currentEffects, mixingHistory, addIngredient, removeLastIngredient, resetMix } = useMixing();
+const SequentialIngredientsSelector = ({
+  currentMix,
+  currentEffects,
+  mixingHistory,
+  addIngredient,
+  removeLastIngredient,
+  resetMix
+}) => {  
   const { selectedDrugType } = useStrainSelection();
   const { finalizeMix } = useFinalizeMix();
+
   const { 
     showSelectIngredient, setShowSelectIngredient,
     hoveredIngredient,
-    hoveredEffects, 
+    //hoveredEffects, 
     handleIngredientHover,
     handleIngredientLeave
   } = useIngredientSelection();
 
-  // Filter available ingredients based on the selected drug type:
-  // This ensures that only ingredients relevant to the selected drug type are displayed.
   const availableIngredients = filterIngredients(selectedDrugType);
 
-  // Render the UI for the Sequential Ingredients Selector:
-  // Displays the current mix status, effects, available ingredients, and action buttons.
   return (
     <div className="mb-6">
       <h3 className="text-md font-medium text-gray-700 mb-2">Mix Creation Process</h3>
@@ -71,26 +67,39 @@ const SequentialIngredientsSelector = () => {
           )}
         </div>
         
-        {/* Hovered Effects Preview (if available) */}
-        {hoveredEffects && (
-          <div className="mb-3 bg-blue-50 p-2 rounded-md border border-blue-100">
-            <div className="text-sm text-blue-700 mb-1 flex items-center">
-              <AlertTriangle className="w-4 h-4 mr-1" />
-              Preview: If you add {hoveredIngredient.name}
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {hoveredEffects.map((effect, idx) => (
-                <span
-                  key={idx}
-                  className="px-2 py-1 text-white rounded-full text-xs"
-                  style={{ backgroundColor: effectColors[effect] || '#333' }}
-                >
-                  {effect}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Hovered Effects Preview (if available)
+        {hoveredIngredient && hoveredEffects && (
+          (() => {
+            const preview = simulateAddIngredient(currentEffects, hoveredIngredient);
+            return (
+              <div className="mb-3 bg-blue-50 p-2 rounded-md border border-blue-100">
+                <div className="text-sm text-blue-700 mb-1 flex items-center">
+                  <AlertTriangle className="w-4 h-4 mr-1" />
+                  Preview: If you add {hoveredIngredient.name}
+                </div>
+                <div className="text-xs text-blue-700 mb-2">
+                  {(preview.changes || []).map((change, idx) => (
+                    <div key={idx} className="flex items-center">
+                      <CornerDownRight className="w-3 h-3 mr-1 text-blue-400" />
+                      {change}
+                    </div>
+                  ))}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {hoveredEffects.map((effect, idx) => (
+                    <span
+                      key={idx}
+                      className="px-2 py-1 text-white rounded-full text-xs"
+                      style={{ backgroundColor: effectColors[effect] || '#333' }}
+                    >
+                      {effect}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            );
+          })()
+        )} */}
         
         {/* Available Effect Slots */}
         <div className="mb-3">
@@ -188,7 +197,7 @@ const SequentialIngredientsSelector = () => {
       
       {/* Ingredient Selection Dialog */}
       {showSelectIngredient && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg p-6 max-w-3xl w-full max-h-[80vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-medium text-gray-900">
@@ -201,11 +210,45 @@ const SequentialIngredientsSelector = () => {
                 <XCircle className="w-5 h-5" />
               </button>
             </div>
+
+            {/* --- preview block --- */}
+            {hoveredIngredient && (
+              (() => {
+                const preview = simulateAddIngredient(currentEffects, hoveredIngredient);
+                return (
+                  <div className="mb-3 bg-blue-50 p-2 rounded-md border border-blue-100">
+                    <div className="text-sm text-blue-700 mb-1 flex items-center">
+                      <AlertTriangle className="w-4 h-4 mr-1" />
+                      Preview: If you add {hoveredIngredient.name}
+                    </div>
+                    <div className="text-xs text-blue-700 mb-2">
+                      {(preview.changes || []).map((change, idx) => (
+                        <div key={idx} className="flex items-center">
+                          <CornerDownRight className="w-3 h-3 mr-1 text-blue-400" />
+                          {change}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {(preview.newEffects || []).map((effect, idx) => (
+                        <span
+                          key={idx}
+                          className="px-2 py-1 text-white rounded-full text-xs"
+                          style={{ backgroundColor: effectColors[effect] || '#333' }}
+                        >
+                          {effect}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()
+            )}
+            {/* --- End preview block --- */}
             
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
               {availableIngredients.map((ingredient) => {
                 const defaultEffect = ingredient.defaultEffect;
-                
                 return (
                   <button
                     key={ingredient.name}
@@ -233,7 +276,6 @@ const SequentialIngredientsSelector = () => {
                         {defaultEffect}
                       </span>
                     </div>
-                    
                     {ingredient.interactions && ingredient.interactions.length > 0 && (
                       <div className="mt-2 text-xs text-gray-500">
                         <span className="bg-blue-50 text-blue-700 px-1 py-0.5 rounded">
@@ -264,6 +306,6 @@ const SequentialIngredientsSelector = () => {
         <p className="mt-1">Each strain can have a maximum of 8 effects. If there's no room for an ingredient's effect, it won't be added.</p>
       </div>
     </div>
-  );
+  )
 };
 export default SequentialIngredientsSelector;

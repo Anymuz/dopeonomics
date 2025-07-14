@@ -5,6 +5,8 @@ import SequentialIngredientsSelector from '@features/strain-creator/ui/selectors
 import PackagingSelector from '@features/strain-creator/ui/selectors/PackagingSelector';
 
 import useStrainSelection from '@features/strain-creator/hooks/useStrainSelection';
+import useMixing from '@features/strain-creator/hooks/useMixing';
+import usePricing from '@features/strain-creator/hooks/usePricing';
 
 // import CurrentMixDisplay from '@features/strain-creator/ui/displays/CurrentMixDisplay';
 // import MixingHistoryDisplay from '@features/strain-creator/ui/displays/MixingHistoryDisplay';
@@ -16,6 +18,8 @@ import useStrainSelection from '@features/strain-creator/hooks/useStrainSelectio
 
 const StrainCreatorTab = () => {
   const { selectedDrugType, selectedSeed, setSelectedSeed, setSelectedDrugType } = useStrainSelection('weed');
+  const { setSalePrice } = usePricing();
+  const { currentMix, currentEffects, mixingHistory, addIngredient, removeLastIngredient, resetMix} = useMixing(selectedSeed, selectedDrugType, setSalePrice);
   return (
       <div>
         <DrugTypeSelector 
@@ -27,7 +31,14 @@ const StrainCreatorTab = () => {
           selectedSeed={selectedSeed}
           setSelectedSeed={setSelectedSeed}
         />
-        <SequentialIngredientsSelector />
+        <SequentialIngredientsSelector
+          currentMix={currentMix}
+          currentEffects={currentEffects}
+          mixingHistory={mixingHistory}
+          addIngredient={addIngredient}
+          removeLastIngredient={removeLastIngredient}
+          resetMix={resetMix}
+        />
         {/* <CurrentMixDisplay />
         <MixingHistoryDisplay />
         <MixSummaryDisplay /> */}

@@ -4,12 +4,11 @@
 
 // Import hooks and utility functions:
 import { useState, useEffect } from 'react';
-import { simulateAddIngredient } from '@features/strain-creator/utils/determineEffects';
-import useStrainSelection from '@features/strain-creator/hooks/useStrainSelection';
+import { calculateStrainEffects } from '@features/strain-creator/utils/determineEffects';
+import { calculateRecommendedPrice } from '@features/strain-creator/utils/priceCalculations';
 
-const useMixing = () => {
-  // The selectedSeed state from custom useStrainSelection hook is used in this hook.
-  const { selectedSeed } = useStrainSelection();
+const useMixing = (selectedSeed, selectedDrugType, setSalePrice) => {
+  // The selectedSeed state from custom useStrainSelection hook is used in this hook COMMENT REDO
 
   // State variables to manage the current mix, mixing history, and current effects:
   // These states are updated based on the selected seed and user interactions.
@@ -45,20 +44,48 @@ const useMixing = () => {
 
   // addIngredient: Adds a new ingredient to the current mix, simulating its effects and updating the state.
   const addIngredient = (ingredient) => {
-    const { newEffects } = simulateAddIngredient(currentEffects, ingredient);
-    setCurrentMix([...currentMix, ingredient]);
-    setMixingHistory([...mixingHistory, [...newEffects]]);
-    setCurrentEffects(newEffects);
-  };
+    // Add ingredient to the current mix
+    const updatedMix = [...currentMix, ingredient];
+    setCurrentMix(updatedMix);
+    
+    // Recalculate effects using the sequential approach
+    if (selectedSeed) {
+      const result = calculateStrainEffects(
+        selectedSeed.effect, 
+        updatedMix
+      );
+      
+      setCurrentEffects(result.finalEffects);
+      setMixingHistory(result.mixingHistory);
+      
+      // Update recommended price
+      const recommendedPrice = calculateRecommendedPrice(result.finalEffects, selectedDrugType);
+      setSalePrice(recommendedPrice);
+      }
+
+   };
 
   // removeLastIngredient: Removes the last ingredient from the current mix and restores the previous effects.  
   const removeLastIngredient = () => {
-    const updatedMix = currentMix.slice(0, -1);
-    const updatedHistory = mixingHistory.slice(0, -1);
-    const restoredEffects = updatedHistory[updatedHistory.length - 1] || [];
+    if (currentMix.length === 0) return;
+    
+    const updatedMix = currentMix.slice(0, currentMix.length - 1);
     setCurrentMix(updatedMix);
-    setMixingHistory(updatedHistory);
-    setCurrentEffects(restoredEffects);
+    
+    // Recalculate effects using the sequential approach
+    if (selectedSeed) {
+      const result = calculateStrainEffects(
+        selectedSeed.effect, 
+        updatedMix
+      );
+      
+      setCurrentEffects(result.finalEffects);
+      setMixingHistory(result.mixingHistory);
+      
+      // Update recommended price
+      const recommendedPrice = calculateRecommendedPrice(result.finalEffects, selectedDrugType);
+      setSalePrice(recommendedPrice);
+    }
   };
 
   // resetMix: Resets the current mix and effects based on the selected seed or clears them if no seed is selected.

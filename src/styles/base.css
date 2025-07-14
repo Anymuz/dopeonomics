@@ -12,6 +12,18 @@
   --color-info: #4299e1;
 }
 
+/* Overlay styles - Anymuz Experiment */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 1rem;
+}
+
 /* Global styles */
 body {
   @apply bg-gradient-to-br from-gray-100 to-gray-50 text-gray-800 min-h-screen;

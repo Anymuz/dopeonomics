@@ -4,14 +4,11 @@
 
 // Import react hooks for state and effect,utility functions and states used from other hooks.
 import { useState, useEffect } from 'react';
-import useMixing from '@features/strain-creator/hooks/useMixing';
-import useStrainSelection from '@features/strain-creator/hooks/useStrainSelection';
 import { calculateRecommendedPrice, calculateProfitMargin,} from '@features/strain-creator/utils/priceCalculations';
 
-const usePricing = () => {
-  // States used from other hooks:
-  const { currentMix, currentEffects } = useMixing();
-  const { selectedDrugType, selectedSeed } = useStrainSelection();
+const usePricing = (currentEffects, currentMix, selectedDrugType, selectedSeed) => {
+  // The selectedSeed and selectedDrugType states from custom useStrainSelection hook are used in this hook.
+  // The currentEffects and currentMix states from custom useMixing hook are used in this hook.
 
   // State variables for this hook to manage sale price, target margin, and price multiplier:
   const [salePrice, setSalePrice] = useState(0);

@@ -2,7 +2,7 @@
 // Maps over a list of tabs and renders each one with an icon and label.
 
 // Importing hook, data and tab component.
-import NavigationTab from '@features/layout/ui/NavigationTab';
+import NavigationTab from '@features/layout/ui/buttons/NavigationTab';
 import useNav from '@features/layout/hooks/useNav';
 import tabList from '@features/layout/data/tabList';
 

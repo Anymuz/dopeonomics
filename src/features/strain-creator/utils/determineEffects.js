@@ -112,16 +112,17 @@ export const calculateStrainEffects = (seedEffect, ingredientsSequence) => {
   };
 };
 
+
+
 // Simulate the addition of an ingredient to the current effects, applying transformations and adding default effects:
 // Returns the new effects, any transformations applied, whether a default effect was added, and the default effect itself.
 // Used for previewing the effects of adding an ingredient without modifying the actual state
 export const simulateAddIngredient = (currentEffects, ingredient) => {
-  if (!currentEffects || !ingredient) return { newEffects: [...currentEffects] };
-  
-  // Clone current effects
+  if (!currentEffects || !ingredient) return { newEffects: [...currentEffects], changes: ["No change"] };
+
   let newEffects = [...currentEffects];
   const transformations = [];
-  
+
   // Apply interactions
   if (ingredient.interactions && ingredient.interactions.length > 0) {
     ingredient.interactions.forEach(interaction => {
@@ -133,21 +134,24 @@ export const simulateAddIngredient = (currentEffects, ingredient) => {
       if (effectIndex !== -1 && !newEffects.includes(interaction.replaceWith)) {
         const oldEffect = newEffects[effectIndex];
         newEffects[effectIndex] = interaction.replaceWith;
-        transformations.push({
+         transformations.push({
           from: oldEffect,
           to: interaction.replaceWith
         });
       }
     });
   }
-  
+
   // Add default effect if possible
   let addedDefaultEffect = false;
   if (ingredient.defaultEffect && newEffects.length < 8 && !newEffects.includes(ingredient.defaultEffect)) {
     newEffects.push(ingredient.defaultEffect);
     addedDefaultEffect = true;
+    transformations.push(`Added ${ingredient.defaultEffect}`);
   }
-  
+
+  if (transformations.length === 0) transformations.push("No change");
+
   return {
     newEffects,
     transformations,

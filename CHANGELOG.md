@@ -67,8 +67,16 @@ All notable changes to this project will be documented in this file.
   - Added new title attribute to `drugTypes` to display seed section titles in the `SequentialSeedSelector` UI 
   - Added 'specificality' to `ingredients` to work with the `filterIngedients` utiliy function to optimise filtering seeds based on selected drug type.
 
+#### *Commit: Hotfix for SequentialIngredientsSelector*
+  - Added small change to  `simulateAddIngredient` function to track what changed based on ingredient interactions when simulating adding the ingredient.
+  - Added preview block for hoveredIngredient to display the preview within the ingredients selection menu
+  - Removed redundent Hovered Effects Preview from Current Mix status seection (it was remaining even after selection menu closed)
+  - Added CSS class to `base.css` to fix the ingredients selection dialogue showing a fully black background
+
+
   **Plan for next commit**:
   - Continue to see if refactoring button components is viable
+  - Look into further refactoring the large UI code for `SequentialIngredientsSelector` provided it doesnt break everything.
   - Add display UI components and finish strain-creator UI
   - Test and complete rebuild of strain-creator feature and tab
 
@@ -77,3 +85,46 @@ All notable changes to this project will be documented in this file.
 _(no tasks completed yet)_
 
 ---
+// Simulate the addition of an ingredient to the current effects, applying transformations and adding default effects:
+// Returns the new effects, any transformations applied, whether a default effect was added, and the default effect itself.
+// Used for previewing the effects of adding an ingredient without modifying the actual state
+// export const simulateAddIngredient = (currentEffects, ingredient) => {
+//   if (!currentEffects || !ingredient) return { newEffects: [...currentEffects] };
+  
+//   // Clone current effects
+//   let newEffects = [...currentEffects];
+//   const transformations = [];
+  
+//   // Apply interactions
+//   if (ingredient.interactions && ingredient.interactions.length > 0) {
+//     ingredient.interactions.forEach(interaction => {
+//       const effectIndex = newEffects.findIndex(effect => effect === interaction.if);
+      
+//       // Only apply transformation if:
+//       // 1. The target effect exists AND 
+//       // 2. The replacement effect is NOT already in the effects list
+//       if (effectIndex !== -1 && !newEffects.includes(interaction.replaceWith)) {
+//         const oldEffect = newEffects[effectIndex];
+//         newEffects[effectIndex] = interaction.replaceWith;
+//         transformations.push({
+//           from: oldEffect,
+//           to: interaction.replaceWith
+//         });
+//       }
+//     });
+//   }
+  
+//   // Add default effect if possible
+//   let addedDefaultEffect = false;
+//   if (ingredient.defaultEffect && newEffects.length < 8 && !newEffects.includes(ingredient.defaultEffect)) {
+//     newEffects.push(ingredient.defaultEffect);
+//     addedDefaultEffect = true;
+//   }
+  
+//   return {
+//     newEffects,
+//     transformations,
+//     addedDefaultEffect,
+//     defaultEffect: ingredient.defaultEffect
+//   };
+// };
