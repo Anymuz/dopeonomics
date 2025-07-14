@@ -1,11 +1,20 @@
-import SettingsButton from '@features/layout/ui/SettingsButton';
-import SettingsModal from '@features/layout/ui/SettingsModal';
-import useSettingsModal from '@features/layout/Hooks/useSettingsModal';
-import useDonateModal from '@features/layout/Hooks/useDonateModal';
-import DonateButton from '@features/layout/ui/DonateButton';
+// Header component that renders the main header of the application.
+// It includes a title, character image, and buttons for settings and donations.
+
+// Importing necessary UI components.
+import DonateButton from '@features/layout/ui/buttons/DonateButton';
 import DonateModal from '@features/layout/ui/DonateModal';
-import { FlaskConical, TrendingUp, DollarSign, BarChart, Settings, Heart, ExternalLink } from 'lucide-react';
-export const Header = () => {
+import SettingsButton from '@features/layout/ui/buttons/SettingsButton';
+import SettingsModal from '@features/layout/ui/SettingsModal';
+
+// Importing necessary hooks for modals.
+import useDonateModal from '@features/layout/Hooks/useDonateModal';
+import useSettingsModal from '@features/layout/Hooks/useSettingsModal';
+
+// Importing icons from lucide-react for UI enhancements.
+import { FlaskConical, TrendingUp, DollarSign, BarChart} from 'lucide-react';
+
+const Header = () => {
   const { 
     open: showDonateModal, 
     closeModal: closedonateModal, 
@@ -23,7 +32,7 @@ export const Header = () => {
     reset,
   } = useSettingsModal();
 
-  // Handler for file input change
+  // Handler for file input change.
   const handleImport = (event) => {
     const file = event.target.files[0];
     importData(file);

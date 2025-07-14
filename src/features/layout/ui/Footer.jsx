@@ -1,5 +1,8 @@
-// Footer
-import { Info, Heart, Handshake} from 'lucide-react';
+// Footer component for the Dopeonomics application.
+// It includes a disclaimer, creator credit, and copyright information.
+
+// Importing icons for the footer.
+import { Info, Heart, Handshake} from 'lucide-react'; 
 
 const Footer = () => {
   return (

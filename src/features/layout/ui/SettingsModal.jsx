@@ -1,5 +1,5 @@
-// Settings UI modal
-export const SettingsModal = (confirm, error, onClose, onExport, onImport, onReset) => {
+// Component to render the settings modal for game settings, save data, import/export functionality, and reset options.
+const SettingsModal = (confirm, error, onClose, onExport, onImport, onReset) => {
   return ( 
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
@@ -99,5 +99,4 @@ export const SettingsModal = (confirm, error, onClose, onExport, onImport, onRes
     </div>
   );
 };
-
 export default SettingsModal;

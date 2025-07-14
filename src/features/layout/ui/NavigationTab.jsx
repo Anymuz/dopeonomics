@@ -1,3 +1,6 @@
+// NavigationTab component to render individual navigation tabs.
+// It includes an icon, label, and click handler to set the active tab.
+
 /* eslint-disable no-unused-vars */
 const NavigationTab = ({activeTab, Icon, label, setActiveTab, tabKey})  => {
 	return (
@@ -13,4 +16,4 @@ const NavigationTab = ({activeTab, Icon, label, setActiveTab, tabKey})  => {
 		</button>
 	)
 };    
-export default NavigationTab  
+export default NavigationTab;

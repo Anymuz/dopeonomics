@@ -1,7 +1,11 @@
+// State management for navigation tabs using Zustand with persistence
+// This store manages the active tab in the navigation bar and persists it across sessions.
+
+// Import necessary libraries from Zustand.
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export const useNavStore = create(
+const useNavStore = create(
   persist(
     (set) => ({
       activeTab: 'creator', // default tab

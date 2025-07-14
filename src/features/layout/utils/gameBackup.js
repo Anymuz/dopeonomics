@@ -1,10 +1,12 @@
-/**
- * Helper for export / import / reset game state.
- * This assumes every Zustand slice will be created with 'persist' and a distinct name.
-*/
+// Helper for export, import and reset of the application states.
+// This assumes every Zustand slice will be created with 'persist' and a distinct name.
+
+// Import the slice keys used in the application.
+// These keys are used to identify different slices of state in localStorage.
 import sliceKeys from "@features/layout/data/sliceKeys";
 
-// Helper function to export persitent state
+// Export function to collect all game data from localStorage:
+// Returns it in a structured format for download.
 export const exportGameState = () => {
   // Collect all game data
   const gameData = Object.fromEntries(
@@ -17,7 +19,8 @@ export const exportGameState = () => {
   };
 };
 
-// Helper fuction to download users JSON file
+// Download function to save the game data as a JSON file:
+// Creates a Blob from the game data and triggers a download.
 export const downloadJSON = (object, filename) => {
   try {
     // Create a Blob with the data
@@ -41,7 +44,8 @@ export const downloadJSON = (object, filename) => {
   };
 };
 
-// Import data from JSON file
+// Import function to read a JSON file and update persistent storage with the data:
+// Expects the JSON to have a specific structure with a version and slices.
 export const handleImportData = (json) => {
   if (!json.version || !json.slices) {
     console.error('Error importing game data: Invalid Save File');
@@ -52,7 +56,8 @@ export const handleImportData = (json) => {
   });
 };
 
-// Reset game to new
+// Reset function to clear all game data from localStorage:
+// This will remove all slices defined in sliceKeys.
 export const handleResetGame = () => {
   sliceKeys.forEach((key) => localStorage.removeItem(key));
 };

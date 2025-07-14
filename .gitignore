@@ -11,6 +11,7 @@ node_modules
 old
 fubar
 notes
+REFACTOR NOTES
 dist
 dist-ssr
 *.local

@@ -42,7 +42,35 @@ All notable changes to this project will be documented in this file.
   - Per feature: now use `/data` for constant data, `/hooks` for state mutation, `/models` for Zustand stores, `utils` for stateless helper functions and `/ui` for react components.
   - Added `maintainence` feature as section to default to when the active tab references a non-existant section. This keeps the app usable as each section is restored and can be used during maintainence futher down the line.
   - Restored the usage of this neglected changelog.
----
+
+#### *Commit: Strain Creator - Selectors, mix.store.js, Data, Utils and Hooks*
+  - Added `features/strain-creator` directory.
+  - Split `/data` files for better organisation.
+    - `effectData.js` stores `effectColors` and `effectDetails`.
+    - `ingredientData.js` has all ingredients and related data to them.
+    - `strainData.js` stores `drugTypes`, `seedTypes` and `packagingTypes`.
+  - Custom `/hook` files to manage states.
+    - `useFinalizeMix.js` handles saving the current mix to `shared/model/mixes.store.js`
+    - `useIngredientSelecction.js` hanndles hover effect states and selected ingredient state.
+    - `useMixing.js` manages states for `currentMix`, `currentEffects` and `mixingHistory` aswell as adding and removing ingredients and `resetMix` along with needed `useEffect`
+    - `useNamingModal.js` handles the state for naming modal and `pendingMix`.
+    - `usePackaging.js`, `usePricing.js`, `useStrainSelection.js` all for their respective states and handling
+  - Added utility files `determineEffects.js` for ingredient/effect functions
+  - `filterIngredients.js` and `priceCalculations.js` in `/utils` with relevent functions.
+  - Made `/ui/selectors` with all selector UI commponents added with originnal html/css interface styles
+  - Created `StrainCreatorTab` in `/ui` to render existing components and test in
+  - Began UI refactoring with `/ui/buttons` containing dynamic `packagingButton.jsx`
+  - Fixed bugs with navigation bar and tab rendering.
+  - Create a versitile `stringUtils.js` in `/shared/utils` to easily convert string data tags and labels to human-friendly text for when used in the UI.
+  - Temporarily invented `box` as a packaging type to test scalability (will be removed once feature is complete)
+  - Commented, organised and standardised all code files to prevent confusion.
+  - Added new title attribute to `drugTypes` to display seed section titles in the `SequentialSeedSelector` UI 
+  - Added 'specificality' to `ingredients` to work with the `filterIngedients` utiliy function to optimise filtering seeds based on selected drug type.
+
+  **Plan for next commit**:
+  - Continue to see if refactoring button components is viable
+  - Add display UI components and finish strain-creator UI
+  - Test and complete rebuild of strain-creator feature and tab
 
 ## Iteration 2: Base Planning Setup
 

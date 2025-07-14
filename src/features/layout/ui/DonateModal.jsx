@@ -1,6 +1,10 @@
-import { Heart, ExternalLink } from 'lucide-react';
+// Component that renders a modal for users to donate to the project.
+// Includes a button to close the modal, a message about supporting the project, and a link to donte.
 
-export default function DonateModal({ onClose }) { 
+// Importing icons for the modal
+import { Heart, ExternalLink } from 'lucide-react'; 
+
+const DonateModal = ({ onClose }) => { 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
@@ -41,3 +45,4 @@ export default function DonateModal({ onClose }) {
     </div>
   );
 };
+export default DonateModal;
