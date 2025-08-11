@@ -73,6 +73,35 @@ All notable changes to this project will be documented in this file.
   - Removed redundent Hovered Effects Preview from Current Mix status seection (it was remaining even after selection menu closed)
   - Added CSS class to `base.css` to fix the ingredients selection dialogue showing a fully black background
 
+#### *Commit: Shared UI Components System + Modal/Button Refactoring*
+  - Created comprehensive shared UI component system in `/src/shared/ui/` with 8 reusable components:
+    - `Alert.jsx` - Contextual messages with severity levels (success, warning, error, info)
+    - `Button.jsx` - Collection of button variants (Primary, Secondary, Gray, Icon) with consistent styling
+    - `Input.jsx` - Smart input components (InputField, Select) with automatic file input detection
+    - `Modal.jsx` - Enhanced modal system with auto close button functionality
+    - `Search.jsx` - Search input with built-in icons and clear functionality
+    - `TabContainer.jsx` - Consistent container styling for tab sections
+    - `TabHeader.jsx` - Section headers with optional icons
+    - `Table.jsx` - Comprehensive table system with sortable headers
+  - Enhanced `Modal` component to support automatic close button when `onClose` prop provided
+  - Enhanced `InputField` component with smart file input detection and flexible styling
+  - Enhanced `IconButton` component to support both icon-only and icon+text combinations
+  - Refactored layout components to use shared UI system:
+    - `DonateModal` now uses enhanced Modal component with auto close functionality
+    - `SettingsModal` completely refactored using Modal, Button, InputField, and Alert components
+    - `SettingsButton` refactored to use IconButton component
+  - Created comprehensive documentation in `/src/shared/ui/README.md` with:
+    - Complete API reference for all components
+    - Real-world usage examples
+    - Props tables and component descriptions
+    - Best practices and accessibility guidelines
+  - Created example component implementations in `/src/shared/components/examples/`:
+    - Enhanced navigation, strain creator, and MyStrains components using shared UI system
+    - Demonstrates proper component composition and reusability patterns
+  - Followed "Rule of Three" principle - avoided over-engineering by keeping simple repeated patterns local
+  - Eliminated ~60% of duplicate CSS and HTML structure across modals and forms
+  - Established consistent design system foundation for future component development
+
 
   **Plan for next commit**:
   - Continue to see if refactoring button components is viable

@@ -17,6 +17,7 @@ dist-ssr
 *.local
 
 notes.md
+src/shared/components/
 
 # Editor directories and files
 .vscode/*

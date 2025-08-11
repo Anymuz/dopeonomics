@@ -12,10 +12,14 @@ function App() {
 
   return (
     <div className="App flex flex-col min-h-screen">
-      <Header />
       <main className="flex-grow">
-        <NavigationBar />
-        <RenderSection />
+        <div className="bg-gradient-to-br from-gray-100 to-gray-50 min-h-screen flex justify-center items-start py-8">
+          <div className="w-full max-w-5xl mx-auto p-4">
+            <Header />
+            <NavigationBar />
+            <RenderSection />
+          </div>
+        </div>
       </main>
       <Footer />
     </div>

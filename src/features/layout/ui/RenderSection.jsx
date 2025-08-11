@@ -7,15 +7,26 @@ import useNav from '@features/layout/hooks/useNav';
 
 const RenderSection = () => {
   const {activeTab} = useNav();
+
   console.log("Active Tab:", activeTab);
+  let render;
   switch (activeTab) {
     // TODO: Add cases for each tab here.
     case 'creator':
-      return <StrainCreatorTab />;
+      render = <StrainCreatorTab />;
+      break;
     case 'effect_builder':
-      return <WorkInProgress label={activeTab} />;
+      render = <WorkInProgress label={activeTab} />;
+      break;
     default:
-      return <WorkInProgress label={activeTab} />
+      render = <WorkInProgress label={activeTab} />;
+      break;
   };
+
+  return (
+    <div className="bg-white rounded-xl shadow-lg p-6 mt-8 border border-gray-200">
+      {render}
+    </div>
+  );
 };
 export default RenderSection;

@@ -1,20 +1,17 @@
 // Component to render the settings modal for game settings, save data, import/export functionality, and reset options.
-const SettingsModal = (confirm, error, onClose, onExport, onImport, onReset) => {
+import { Settings, Download, AlertTriangle, Trash2 } from 'lucide-react';
+import Modal from '../../../shared/ui/Modal.jsx';
+import { PrimaryButton, SecondaryButton, GrayButton } from '../../../shared/ui/Button.jsx';
+import { InputField } from '../../../shared/ui/Input.jsx';
+import Alert from '../../../shared/ui/Alert.jsx';
+
+const SettingsModal = ({ confirm, error, onClose, onExport, onImport, onReset }) => {
   return ( 
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-800 flex items-center">
-            <Settings className="mr-2 w-5 h-5" />
-            Game Settings
-          </h2>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+    <Modal onClose={onClose} className="shadow-xl">
+      <Modal.Header hasCloseButton className="text-xl flex items-center">
+        <Settings className="mr-2 w-5 h-5" />
+        Game Settings
+      </Modal.Header>
 
         <div className="space-y-6">
           {/* Save Data Section */}
@@ -23,13 +20,13 @@ const SettingsModal = (confirm, error, onClose, onExport, onImport, onReset) => 
             <p className="text-sm text-gray-500 mb-3">
               Your game automatically saves when you make changes and when you close the game.
             </p>
-            <button
+            <PrimaryButton
               onClick={onExport}
-              className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded flex items-center w-full justify-center"
+              className="w-full flex items-center justify-center"
             >
               <Download className="mr-2 w-4 h-4" />
               Export Save File
-            </button>
+            </PrimaryButton>
           </div>
 
           {/* Import Data Section */}
@@ -39,23 +36,23 @@ const SettingsModal = (confirm, error, onClose, onExport, onImport, onReset) => 
               Import a previously exported save file. This will overwrite your current game data.
             </p>
             
-            <label className="block">
-              <span className="sr-only">Choose save file</span>
-              <input
-                type="file"
-                accept=".json"
-                onChange={onImport}
-                className="block w-full text-sm text-gray-500
-                  file:mr-4 file:py-2 file:px-4
-                  file:rounded file:border-0
-                  file:text-sm file:font-semibold
-                  file:bg-blue-50 file:text-blue-700
-                  hover:file:bg-blue-100"
-              />
-            </label>
+            <InputField
+              label="Choose save file"
+              type="file"
+              accept=".json"
+              onChange={onImport}
+              className="block w-full text-sm text-gray-500
+                file:mr-4 file:py-2 file:px-4
+                file:rounded file:border-0
+                file:text-sm file:font-semibold
+                file:bg-blue-50 file:text-blue-700
+                hover:file:bg-blue-100"
+            />
             
             {error && (
-              <p className="mt-2 text-sm text-red-600">{error}</p>
+              <Alert type="error" className="mt-2">
+                {error}
+              </Alert>
             )}
           </div>
 
@@ -66,37 +63,37 @@ const SettingsModal = (confirm, error, onClose, onExport, onImport, onReset) => 
               This will delete all your saved data and start fresh. This cannot be undone!
             </p>
             
-            <button
-              onClick={onReset}
-              className={`${
-                confirm 
-                  ? 'bg-red-600 hover:bg-red-700 text-white' 
-                  : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
-              } py-2 px-4 rounded flex items-center w-full justify-center`}
-            >
-              {confirm ? (
-                <>
-                  <AlertTriangle className="mr-2 w-4 h-4" />
-                  Yes, Reset Everything
-                </>
-              ) : (
-                <>
-                  <Trash2 className="mr-2 w-4 h-4" />
-                  Reset Game Data
-                </>
-              )}
-            </button>
+            {confirm ? (
+              <PrimaryButton
+                onClick={onReset}
+                className="w-full bg-red-600 hover:bg-red-700 flex items-center justify-center"
+              >
+                <AlertTriangle className="mr-2 w-4 h-4" />
+                Yes, Reset Everything
+              </PrimaryButton>
+            ) : (
+              <GrayButton
+                onClick={onReset}
+                className="w-full flex items-center justify-center"
+              >
+                <Trash2 className="mr-2 w-4 h-4" />
+                Reset Game Data
+              </GrayButton>
+            )}
             
             {confirm && (
-              <p className="mt-2 text-sm text-red-600 flex items-start">
-                <AlertTriangle className="w-4 h-4 mr-1 shrink-0 mt-0.5" />
-                <span>Are you sure? This will permanently delete all your strains, production plans, and settings.</span>
-              </p>
+              <Alert 
+                type="error" 
+                icon={AlertTriangle}
+                className="mt-2"
+              >
+                Are you sure? This will permanently delete all your strains, production plans, and settings.
+              </Alert>
             )}
           </div>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 };
+
 export default SettingsModal;

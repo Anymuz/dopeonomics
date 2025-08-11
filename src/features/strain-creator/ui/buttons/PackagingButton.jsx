@@ -1,5 +1,7 @@
+import {formatTitle} from '@shared/utils/stringUtils';
+
 const PackagingButton = ({ type, cost, capacity, packagingType, setPackagingType }) => {
-  const name = `${type.charAt(0).toUpperCase()}${type.slice(1)}`;
+  const name = formatTitle(type); // Make into title.
   const units = capacity === 1 ? 'unit' : 'units';
   const description = `$${cost} per ${capacity} ${units}`;
 
