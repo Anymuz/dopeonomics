@@ -1,4 +1,7 @@
-// Ingredient data for the strain creator feature
+// Ingredient data for strain creation including costs, effects, and interactions.
+// Defines all available ingredients with their properties, default effects, and interaction rules.
+
+// Complete ingredient list with costs, default effects, and interaction matrices.
 export const ingredients = [
     { 
       name: 'Cuke', 

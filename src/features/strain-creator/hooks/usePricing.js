@@ -1,9 +1,11 @@
-// Hook to manage pricing state in the strain creator feature.
-// Calculates the sale price based on current effects and selected drug type.
-// Also calculates the target profit margin based on the sale price and selected seed.
+// Hook for managing pricing state and calculations in the strain creator.
+// Calculates sale prices, profit margins, and handles price multiplier functionality.
+// Automatically updates pricing recommendations based on effects and drug type selection.
 
-// Import react hooks for state and effect,utility functions and states used from other hooks.
+// Importing React hooks for state management and side effects.
 import { useState, useEffect } from 'react';
+
+// Importing utility functions for price and profit calculations.
 import { calculateRecommendedPrice, calculateProfitMargin,} from '@features/strain-creator/utils/priceCalculations';
 
 const usePricing = (currentEffects, currentMix, selectedDrugType, selectedSeed) => {
@@ -31,7 +33,18 @@ const usePricing = (currentEffects, currentMix, selectedDrugType, selectedSeed) 
     }
   }, [salePrice, selectedSeed, currentMix]);
 
-  // Return the pricing state and setters:
+  // Handler functions for manual price/margin changes
+  const handlePriceChange = (e) => {
+    const value = parseFloat(e.target.value) || 0;
+    setSalePrice(value);
+  };
+
+  const handleMarginChange = (e) => {
+    const value = parseFloat(e.target.value) || 0;
+    setTargetMargin(value);
+  };
+
+  // Return the pricing state, setters, and handlers:
   // Allowing components to access and modify the sale price, target margin, and price multiplier.
   return {
     salePrice,
@@ -40,6 +53,8 @@ const usePricing = (currentEffects, currentMix, selectedDrugType, selectedSeed) 
     setTargetMargin,
     priceMultiplier,
     setPriceMultiplier,
+    handlePriceChange,
+    handleMarginChange,
   };
 };
 export default usePricing;

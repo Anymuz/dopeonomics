@@ -1,10 +1,9 @@
-// Strain data for the strain creator feature
-// This file contains the seed types and their effects, as well as the drug type information.
+// Data definitions for strain creation including drug types, seeds, and packaging options.
+// Contains all the core data structures used throughout the strain creator feature.
 // Note: The definition 'seed' in this project is synonymous with the precursor or base product for the drug type.
 
-// Drug types with their properties:
-// Each drug type has a name, emoji, precursor/seed title, base price, description, yield amount, and unit.
-// Used to provide information about each drug type in the UI.
+// Drug types with their properties and characteristics.
+// Each drug type defines name, emoji, precursor title, pricing, yield amount, and unit of measurement.
 export const drugTypes = {
   'weed': {
     name: 'Weed',

@@ -1,8 +1,8 @@
-// Hook that manages the selection of drug types and seeds in the strain creator feature. 
-// Provides state management for the selected drug type and seed, allowing components to access and modify these selections.
-// Used for components that need to display or interact with the selected strain data.
+// Hook for managing drug type and seed selection in the strain creator.
+// Provides state management for selected drug type and seed with automatic seed reset on drug type change.
+// Used by components that need to display or interact with the selected strain data.
 
-//  Import React's useState hook and useEffect to manage state.
+// Importing React hooks for state management and side effects.
 import { useState, useEffect } from 'react';
 
 const useStrainSelection = (defaultDrugType = 'weed') => {

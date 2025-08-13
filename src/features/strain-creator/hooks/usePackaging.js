@@ -1,6 +1,7 @@
-// Custom hook for packaging type for use by PackagingSelector UI component in the strain creator feature.
+// Hook for managing packaging type selection in the strain creator.
+// Provides state management for packaging type which affects profit calculations and display.
 
-// Import useState from React to manage state.
+// Importing React hooks for state management.
 import { useState } from "react";
 
 const usePackaging = (initalPackageType=null) => {

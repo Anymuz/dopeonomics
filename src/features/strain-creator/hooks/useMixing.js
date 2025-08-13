@@ -1,9 +1,11 @@
-// Hooks for managing the current mix, mixing history, and current effects based on the selected seed.
-// Provides functions to add ingredients, remove the last ingredient, and reset the mix.
-// It also simulates the addition of ingredients to calculate new effects and updates the state accordingly
+// Hook for managing the current mix, mixing history, and effects in strain creation.
+// Provides functions to add ingredients, remove ingredients, reset the mix, and calculate effects.
+// Automatically updates effects and mixing history based on seed selection and ingredient changes.
 
-// Import hooks and utility functions:
+// Importing React hooks for state management and side effects.
 import { useState, useEffect } from 'react';
+
+// Importing utility functions for effect calculations and price recommendations.
 import { calculateStrainEffects } from '@features/strain-creator/utils/determineEffects';
 import { calculateRecommendedPrice } from '@features/strain-creator/utils/priceCalculations';
 

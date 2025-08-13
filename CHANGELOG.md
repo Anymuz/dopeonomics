@@ -102,12 +102,46 @@ All notable changes to this project will be documented in this file.
   - Eliminated ~60% of duplicate CSS and HTML structure across modals and forms
   - Established consistent design system foundation for future component development
 
+#### *Commit: Display Components Refactoring + Primitive Component System*
+  - **Refactored display components** using shared primitive components to eliminate code duplication:
+    - `CurrentMixDisplay.jsx` - Enhanced with consistent card styling and effect tags
+    - `MixingHistoryDisplay.jsx` - Streamlined with shared primitives 
+    - `MixSummaryDisplay.jsx` - Unified styling with other display components
+    - `ProfitInfoDisplay.jsx` - Updated to use new display utilities and moved ProfitRow to primitives
+  - **Created essential primitive components** in `/ui/primitives/`:
+    - `DisplayCard.jsx` - Shared container component with consistent border/padding/background
+    - `EffectTag.jsx` - Green effect tags used across all display components
+    - `ProfitRow.jsx` - Specialized row component for profit displays (moved from existing location)
+    - `SelectorHeader.jsx` - Consistent section headers for selectors (moved from existing location)
+  - **Created specialized button components** in `/ui/buttons/`:
+    - `DrugTypeButton.jsx` - Drug type selection with emoji, name, and pricing information
+    - `SeedButton.jsx` - Seed selection with detailed information display (emoji, cost, effect, description)
+  - **Created new UI components**:
+    - `NamePromptModal.jsx` - Modal for naming and saving strain creations
+    - `PriceMarginInputs.jsx` - Comprehensive pricing input component with sale price, target margin, and price multiplier slider
+  - **Major StrainCreatorTab.jsx updates**:
+    - Integrated all new components (selectors, displays, modals, pricing inputs)
+    - Connected all hooks (usePricing, useNamingModal, useMixing, useStrainSelection)
+    - Implemented complete strain creation workflow from selection to saving
+  - **Created display utility functions** for consistent formatting:
+    - `shared/utils/displayUtils.js` - Universal formatting utility with type-based display options
+      - `formatDisplayValue()` - Handles currency, percentage, number, and text formatting with options
+      - Auto-detection and explicit type formatting for backward compatibility
+    - `strain-creator/utils/profitDisplayUtils.js` - Specialized profit display utilities
+      - `getProfitColor()` - Dynamic color coding for profit/loss values
+      - `formatPackagingDisplay()` - Dynamic packaging type display with cost and capacity
+  - **Restored missing Price Multiplier functionality**:
+    - Added price multiplier slider (1-20x range) back to `PriceMarginInputs.jsx`
+    - Connected to existing pricing state management via `usePricing` hook
+    - Updated `StrainCreatorTab.jsx` to pass required `priceMultiplier` and `handleMultiplierChange` props
+  - **Enhanced pricing hooks** with missing handler functions:
+    - `usePricing.js` - Added `handleMarginChange` handler for consistent form handling
+    - Updated hook exports to include both `handlePriceChange` and `handleMarginChange`
+    - `useNamingModal.js` - Enhanced with additional handlers (`handleConfirm`, `handleKeyPress`) and improved state management
+  - **Standardized import patterns** across all components using `@features/strain-creator` alias
+  - **Code quality improvements**: Removed unused imports and enhanced component maintainability
 
-  **Plan for next commit**:
-  - Continue to see if refactoring button components is viable
-  - Look into further refactoring the large UI code for `SequentialIngredientsSelector` provided it doesnt break everything.
-  - Add display UI components and finish strain-creator UI
-  - Test and complete rebuild of strain-creator feature and tab
+
 
 ## Iteration 2: Base Planning Setup
 

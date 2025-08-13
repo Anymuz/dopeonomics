@@ -1,8 +1,9 @@
-// Contains utility functions for calculating strain effects based on ingredients and their interactions.
-// It includes functions to get default effects, calculate strain effects based on a seed effect and a sequence of ingredients,
-// and simulate the addition of an ingredient to the current effects.
+// Utility functions for calculating strain effects based on ingredients and interactions.
+// Handles effect calculations, ingredient interactions, and simulates effect changes during strain creation.
+// Provides core logic for determining final strain effects from seed base and ingredient combinations.
 
-import { ingredients } from '@features/strain-creator/data/ingredientData'; // Import the ingredient data.
+// Importing ingredient data for effect calculations.
+import { ingredients } from '@features/strain-creator/data/ingredientData';
 
 // Create an object where each key is the ingredient name and the value is its default effect:
 // This allows for fast access to the default effect of any ingredient by its name.

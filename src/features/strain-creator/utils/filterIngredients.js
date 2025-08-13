@@ -1,8 +1,8 @@
-// Contains utility functions for filtering ingredients based on drug type in the strain creator feature.
-// Used for the sequentialIngredientSelector UI component.
-// Includes functions to check if an ingredient is for a specific drug type and to filter ingredients based on the selection.
+// Utility functions for filtering ingredients based on drug type compatibility.
+// Used by the SequentialIngredientSelector to show only relevant ingredients for the selected drug type.
+// Handles both common ingredients and drug-specific ingredients for proper filtering.
 
-// Import ingredient data from the data file
+// Importing ingredient data for filtering operations.
 import { ingredients } from '@features/strain-creator/data/ingredientData';
 
 // Check if an ingredient is relevant for the selected drug type, optimised to avoid inefficient array recalculations

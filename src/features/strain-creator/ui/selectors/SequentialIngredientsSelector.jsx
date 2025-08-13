@@ -1,15 +1,25 @@
-// Sequential Ingredients Selector:
-// UI component used in the strain-creator feature.
+// SequentialIngredientsSelector - Interactive ingredient selection component.
 // Allows adding one ingredient at a time and shows effects after each step for a dynamic user experience.
+// Provides real-time feedback on ingredient combinations and their effects.
 
+// Importing icons from lucide-react for UI interaction elements.
 import { PlusCircle, CornerDownRight, Check, RotateCcw, Trash2, XCircle, AlertTriangle } from 'lucide-react';
+
+// Importing utility functions for ingredient filtering and effect calculations.
 import { filterIngredients } from '@features/strain-creator/utils/filterIngredients';
-import { effectColors } from '@features/strain-creator/data/effectData';
 import { simulateAddIngredient } from '@features/strain-creator/utils/determineEffects';
 
+// Importing data for effect visualization.
+import { effectColors } from '@features/strain-creator/data/effectData';
+
+// Importing hooks for state management and ingredient interaction.
 import useIngredientSelection from '@features/strain-creator/hooks/useIngredientSelection';
 import useFinalizeMix from '@features/strain-creator/hooks/useFinalizeMix';
 import useStrainSelection from '@features/strain-creator/hooks/useStrainSelection';
+
+// Importing primitive components for consistent styling.
+import SelectorHeader from '@features/strain-creator/ui/primitives/SelectorHeader';
+
 
 const SequentialIngredientsSelector = ({
   currentMix,
@@ -34,7 +44,7 @@ const SequentialIngredientsSelector = ({
 
   return (
     <div className="mb-6">
-      <h3 className="text-md font-medium text-gray-700 mb-2">Mix Creation Process</h3>
+      <SelectorHeader>Mix Creation Process</SelectorHeader>
       
       {/* Current Mix Status */}
       <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">

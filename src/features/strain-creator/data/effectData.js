@@ -1,5 +1,8 @@
-// Colour codes for the effects:
-// These colors are used in the UI to visually represent each effect.
+// Effect data for strain creation including color codes and weight multipliers.
+// Defines visual representation and game mechanics for all available strain effects.
+
+// Color codes for effect visualization in the UI.
+// Each effect has a unique color used for tags and visual representation throughout the interface.
 export const effectColors = {
     'Anti-Gravity': '#143371',
     'Athletic': '#4d85a8',

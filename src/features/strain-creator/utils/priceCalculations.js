@@ -1,8 +1,9 @@
-// Contains utility functions for calculating pricing, costs, and profits related to strain production in the strain creator feature of the application.
-// It includes functions for calculating effect multipliers, recommended prices, total units produced, ingredient costs, total costs, profits, and production plans.
-// It also handles packaging costs and profit margins based on sale prices and production costs.
+// Utility functions for pricing, cost, and profit calculations in strain creation.
+// Handles effect multipliers, recommended pricing, ingredient costs, and profit margin calculations.
+// Supports packaging cost calculations and production planning for the strain creator feature.
 
-import { effectDetails } from '@features/strain-creator/data/effectData'; // Import effect details for multipliers and descriptions
+// Importing effect data for multiplier calculations.
+import { effectDetails } from '@features/strain-creator/data/effectData';
 
 // Calculate the effect multiplier based on current effects:
 // Returns the sum of multipliers for all effects, or 0 if no effects are present
