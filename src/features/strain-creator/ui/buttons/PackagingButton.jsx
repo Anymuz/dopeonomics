@@ -1,3 +1,5 @@
+// PackagingButton component for selecting packaging options
+
 import {formatTitle} from '@shared/utils/stringUtils';
 
 const PackagingButton = ({ type, cost, capacity, packagingType, setPackagingType }) => {
